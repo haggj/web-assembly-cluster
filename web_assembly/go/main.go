@@ -7,12 +7,11 @@ import "bytes"
 import "fmt"
 import "time"
 
-const ITERATIONS = 800000
+const ITERATIONS = 8000
 
 func main() {
     // Expose the function to JS
-    js.Global().Set("formatJSON", passwordCracker)
-    // Wait for call
+    js.Global().Set("wasmFunction", passwordCracker)
     <-make(chan bool)
 }
 
