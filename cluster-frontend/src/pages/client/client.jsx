@@ -14,13 +14,17 @@ export const Client = () => {
         return window.wasmFunction(...args);
     }
 
-   (async() => {
+   let testStuff = async() => {
   console.log('before start');
   await initWebAssembly("http://localhost:3001/main.wasm");
   const hash = Uint8Array.from([58, 196, 44, 131, 94, 101, 124, 169, 86, 7, 42, 215, 197, 160, 67, 233, 74, 171, 0, 112, 140, 38, 14, 99, 14, 16, 147, 84, 41, 159, 55, 51])
   var result = runWebAssembly(hash, "hallo", "hi", "ho")
   console.log(result);
-})();
+  };
+
+  useEffect(() => {
+        testStuff();
+    }, []);
 
 
     return (
