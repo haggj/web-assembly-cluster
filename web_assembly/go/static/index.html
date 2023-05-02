@@ -37,27 +37,24 @@
 <!--    Run compiled WASM code     -->
 <script src="wasm_exec.js"></script>
 <script>
-    function arraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
 
-  // If you don't care about the order of the elements inside
-  // the array, you should sort both arrays here.
-  // Please note that calling sort on an array will modify that array.
-  // you might want to clone your array first.
+initWebAssembly = async (wasm_path) => {
+  const go = new Go();
+  result = await WebAssembly.instantiateStreaming(fetch(wasm_path, {cache: "no-store"}), go.importObject);
+  go.run(result.instance);
+};
 
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
+runWebAssembly = (...args) => {
+    return window.wasmFunction(...args);
 }
 
-    // This is the hash of value "hub"
-    const hash_hub = Uint8Array.from([58, 196, 44, 131, 94, 101, 124, 169, 86, 7, 42, 215, 197, 160, 67, 233, 74, 171, 0, 112, 140, 38, 14, 99, 14, 16, 147, 84, 41, 159, 55, 51])
+// Call start
+(async() => {
+  console.log('before start');
+  await initWebAssembly("main.wasm");
+  const hash = Uint8Array.from([58, 196, 44, 131, 94, 101, 124, 169, 86, 7, 42, 215, 197, 160, 67, 233, 74, 171, 0, 112, 140, 38, 14, 99, 14, 16, 147, 84, 41, 159, 55, 51])
+  var result = runWebAssembly(hash, "hallo", "hi", "ho")
+  console.log(result);
+})();
 
-    const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-        go.run(result.instance);
-    });
 </script>
