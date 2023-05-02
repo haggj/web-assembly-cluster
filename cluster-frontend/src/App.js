@@ -1,6 +1,12 @@
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import {MasterDashboard} from "./pages/masterDashboard/masterDashboard";
+import {Client} from "./pages/client/client";
+import HelloWorld from "./pages/helloWorld";
+import {NoPage} from "./pages/noPage";
 
 function App() {
   const [message, setMessage] = useState('');
@@ -9,7 +15,7 @@ function App() {
   const [incomingMessage, setIncomingMessage] = useState('');
 
   async function fetchData() {
-    const result = await axios.get('http://localhost:3001/');
+    const result = await axios.get('http://localhost:3001/hello-world');
     setMessage(result.data);
   }
 
@@ -48,15 +54,19 @@ function App() {
   }, []);
 
   return (
-      <div>
-        <h1>{message}</h1>
-        <div>
-          <h3>Socket Status: {socketStatus}</h3>
-          <button onClick={openWebSocket}>Open Socket</button>
-          <button onClick={closeWebSocket}>Close Socket</button>
-        </div>
-        <h2>Incoming message: {incomingMessage}</h2>
-      </div>
+      <>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/">
+              <Route index element={<NoPage />} />
+              <Route path="master-dashboard" element={<MasterDashboard />} />
+              <Route path="client" element={<Client />} />
+              <Route path="hello-world" element={<HelloWorld />} />
+              <Route path="*" element={<NoPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </>
   );
 }
 
