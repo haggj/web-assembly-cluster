@@ -19,6 +19,7 @@ export class WsGatewayGateway {
 
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
+    console.log(`Recieved Message from Client: ${client.id}\t Message: ${payload}`);
     return 'Hello world!';
   }
 
@@ -28,7 +29,8 @@ export class WsGatewayGateway {
 
   handleConnection(client: any, ...args: any[]) {
     console.log(`Client connected: ${client.id}`);
-    this.server.emit('message', 'A new client has connected');
+    //this.server.emit('message', 'A new client has connected');
+    client.emit('message', `A new client ${client.id} has connected`);
   }
 
   afterInit(server: Server) {
