@@ -16,7 +16,7 @@ export const MasterDashboard = () => {
         } else {
             console.log(`starting job ${job}...`)
             const result = await axios.post('http://localhost:3001/jobs', {'job': job});
-            if (result.status === 200) {
+            if (result.status === 201) {
                 console.log('successfully started job')
                 setRunningJob(job)
             } else {
@@ -27,13 +27,17 @@ export const MasterDashboard = () => {
 
     const stopJob = async (job) => {
         if (runningJob) {
-            console.log(`stopping job ${job}...`)
-            const result = await axios.delete('http://localhost:3001/jobs', {'job': job});
-            if (result.status === 200) {
-                console.log('successfully stoped job')
-                setRunningJob(undefined)
+            if (job === runningJob) {
+                console.log(`stopping job ${job}...`)
+                const result = await axios.delete('http://localhost:3001/jobs', {'job': job});
+                if (result.status === 200) {
+                    console.log('successfully stoped job')
+                    setRunningJob(undefined)
+                } else {
+                    console.log(`Server returned ${result.status}`)
+                }
             } else {
-                console.log(`Server returned ${result.status}`)
+                console.log(`Cant stop ${job}! Job ${runningJob} is currently running currently`)
             }
         } else {
             console.log('Cant stop job!\n No Jobs are running currently')

@@ -6,7 +6,6 @@ import {
   OnGatewayDisconnect,
   WebSocketServer
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
 
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -14,8 +13,7 @@ import { Server } from 'socket.io';
   pingTimeout: 120000,
 })
 export class WsGatewayGateway {
-  @WebSocketServer()
-  server: Server;
+  allClients = []
 
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
@@ -25,16 +23,27 @@ export class WsGatewayGateway {
 
   handleDisconnect(client: any) {
     console.log(`Client disconnected: ${client.id}`);
+    this.allClients = this.allClients.filter(c => c.id != client.id)
   }
 
   handleConnection(client: any, ...args: any[]) {
     console.log(`Client connected: ${client.id}`);
-    //this.server.emit('message', 'A new client has connected');
+    this.allClients.push(client)
     client.emit('message', `A new client ${client.id} has connected`);
   }
 
-  afterInit(server: Server) {
-    console.log('WebSocket gateway initialized');
+  broadcastWasm(path: string) {
+    for (let c of this.allClients) {
+      console.log(`broadcast to ${c.id}`)
+      c.emit('loadwasm', path)
+    }
+  }
+
+  @SubscribeMessage('resultwasm')
+  handleResult(client: any, payload: any): void {
+    console.log(`Recieved Result from Client: ${client.id}\t Message: ${payload}`);
+    // TODO: Hand result to Job Definition
+    //return 'Hello world!';
   }
 }
 

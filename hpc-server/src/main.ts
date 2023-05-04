@@ -7,7 +7,6 @@ async function bootstrap() {
   app.enableCors();
   const server = app.listen(3001);
   const wsGateway = app.get(WsGatewayGateway);
-  wsGateway.server = await server;
 }
 bootstrap();
 

@@ -1,11 +1,12 @@
-import {Body, Controller, Delete, Get, Post, StreamableFile, Header} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, StreamableFile, Header } from '@nestjs/common';
 import { AppService } from './app.service';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import {WsGatewayGateway} from "./ws-gateway.gateway";
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService, private readonly appGateway: WsGatewayGateway) {}
 
   @Get('/hello-world')
   getHello(): string {
@@ -19,11 +20,14 @@ export class AppController {
 
   @Post('/jobs')
   runJob(@Body() data): string {
+    console.log(`Start Job ${data.job}...`)
+    this.appGateway.broadcastWasm(data.job)
     return `Started Job ${data.job}`
   }
 
   @Delete('/jobs')
   stopJob(@Body() data): string {
+    console.log(`Stop Job ${data.job}...`)
     return `Stopped Job ${data.job}`
   }
 
