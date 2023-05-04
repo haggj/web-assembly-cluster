@@ -30,6 +30,7 @@ export const Client = () => {
     async function onLoadWasm(message) {
         await initWebAssembly("http://localhost:3001/wasm/" + message);
         setLoadedWasm(message);
+        console.log(message + " file loaded")
         // Send empty object to indicate that the WASM file was loaded and client is ready
         socket.emit('resultwasm', JSON.stringify({}));
     }
@@ -38,9 +39,12 @@ export const Client = () => {
         // message is JSON string of the form {id: string, data: list of arguments}
         let job = JSON.parse(message);
         setRunningJob(job.id);
+        console.log("Received job:")
         console.log(job)
         let wasm_result = runWebAssembly(...job.data);
         let result = {id: job.id, result: wasm_result};
+        console.log("Result of job:")
+        console.log(result)
         socket.emit('resultwasm', JSON.stringify(result));
     }
 
@@ -57,6 +61,7 @@ export const Client = () => {
         socket.on('runwasm', onRunWasm)
         setSocket(socket);
         setSocketStatus('Connected')
+        console.log("WebSocket connection established")
     };
 
     const closeWebSocket = () => {
@@ -66,6 +71,7 @@ export const Client = () => {
         }
         setSocket(undefined);
         setSocketStatus('Closed')
+        console.log("WebSocket connection closed")
     }
 
    let testStuff = async() => {
@@ -82,8 +88,8 @@ export const Client = () => {
   };
 
   useEffect(() => {
-        //testStuff();
         openWebSocket();
+        //testStuff();
     }, []);
 
 

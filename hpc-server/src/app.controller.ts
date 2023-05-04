@@ -29,7 +29,7 @@ export class AppController {
     }
 
     this.appGateway.broadcastWasm(jobDefiniton.path)
-    this.appGateway.broadcastJobs(jobDefiniton)
+    //this.appGateway.broadcastJobs(jobDefiniton)
     return `Started Job ${data.job}`
   }
 
