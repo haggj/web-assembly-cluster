@@ -7,6 +7,17 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 
+interface JobDummy {
+  id: number,
+  data: string[]
+}
+
+export interface JobDefinitionDummy {
+  name: string,
+  path: string,
+  jobs: JobDummy[]
+}
+
 @WebSocketGateway({
   cors: { origin: '*' },
   pingInterval: 120000,
@@ -36,6 +47,20 @@ export class WsGatewayGateway {
     for (let c of this.allClients) {
       console.log(`broadcast to ${c.id}`)
       c.emit('loadwasm', path)
+    }
+  }
+
+  broadcastJobs(jodDefinition: JobDefinitionDummy) {
+    let i: number = 0
+    for (let c of this.allClients) {
+      // TODO: getJob() here
+      i = i + 1
+      const jobDummy: JobDummy = {
+        id: i,
+        data: ['argA', 'argB', 'argC']
+      }
+      console.log(`send Job ${jobDummy.id} to ${c.id}`)
+      c.emit('runwasm', jobDummy)
     }
   }
 
