@@ -30,16 +30,18 @@ export const Client = () => {
     async function onLoadWasm(message) {
         await initWebAssembly("http://localhost:3001/wasm/" + message);
         setLoadedWasm(message);
+        // Send empty object to indicate that the WASM file was loaded and client is ready
+        socket.emit('resultwasm', JSON.stringify({}));
     }
 
     function onRunWasm(message) {
         // message is JSON string of the form {id: string, data: list of arguments}
         let job = JSON.parse(message);
         setRunningJob(job.id);
+        console.log(job)
         let wasm_result = runWebAssembly(...job.data);
         let result = {id: job.id, result: wasm_result};
-        //socket.emit('resultwasm', JSON.stringify(result));
-        return result;
+        socket.emit('resultwasm', JSON.stringify(result));
     }
 
     const openWebSocket = () => {
@@ -80,7 +82,7 @@ export const Client = () => {
   };
 
   useEffect(() => {
-        testStuff();
+        //testStuff();
         openWebSocket();
     }, []);
 

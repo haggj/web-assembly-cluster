@@ -60,7 +60,7 @@ export class WsGatewayGateway {
         data: ['argA', 'argB', 'argC']
       }
       console.log(`send Job ${jobDummy.id} to ${c.id}`)
-      c.emit('runwasm', jobDummy)
+      c.emit('runwasm', JSON.stringify(jobDummy))
     }
   }
 

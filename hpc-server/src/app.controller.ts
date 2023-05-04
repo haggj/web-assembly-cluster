@@ -42,7 +42,7 @@ export class AppController {
   @Header('Content-type', 'application/wasm')
   @Get('wasm/:file')
   getWasm(@Param('file') file): StreamableFile{
-  let path = join(process.cwd(), 'wasm/' + resolve(file));
+  let path = join(process.cwd(), 'wasm/' + file);
   const data = createReadStream(path);
   return new StreamableFile(data);
   }
