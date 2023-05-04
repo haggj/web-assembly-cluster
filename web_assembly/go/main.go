@@ -1,11 +1,14 @@
 package main
 
-import "golang.org/x/crypto/pbkdf2"
-import "crypto/sha1"
-import "syscall/js"
-import "bytes"
-import "fmt"
-import "time"
+import (
+    "golang.org/x/crypto/pbkdf2"
+    "crypto/sha1"
+    "syscall/js"
+    "bytes"
+    "fmt"
+    "time"
+    b64 "encoding/base64"
+)
 
 const ITERATIONS = 8000
 
@@ -32,8 +35,7 @@ var passwordCracker = js.FuncOf(func(this js.Value, args[] js.Value) any {
         }
 
         // Copy hashToCrack into Go memory
-        hashToCrack := make([] byte, args[0].Length())
-        js.CopyBytesToGo(hashToCrack, args[0])
+        hashToCrack, _ := b64.StdEncoding.DecodeString(args[0].String())
 
         // Check passwords and return if found
         for _, arg := range args[1:] {
