@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Post, StreamableFile, Header } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Post, StreamableFile, Header, Param} from '@nestjs/common';
 import { AppService } from './app.service';
 import { createReadStream } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import {JobDefinitionDummy, WsGatewayGateway} from "./ws-gateway.gateway";
 
 @Controller()
@@ -15,7 +15,7 @@ export class AppController {
 
   @Get('/jobs')
   getJobs(): string[] {
-    return ['Hash-Cracker', 'Job #2', 'Prime calculator', '...']
+    return ['hashcrack.wasm', 'Job #2', 'Prime calculator', '...']
   }
 
   @Post('/jobs')
@@ -39,11 +39,11 @@ export class AppController {
     return `Stopped Job ${data.job}`
   }
 
-  @Get('/main.wasm')
   @Header('Content-type', 'application/wasm')
-  getWasm(): StreamableFile {
-  let path = join(process.cwd(), 'main.wasm');
-  const file = createReadStream(path);
-  return new StreamableFile(file);
+  @Get('wasm/:file')
+  getWasm(@Param('file') file): StreamableFile{
+  let path = join(process.cwd(), 'wasm/' + resolve(file));
+  const data = createReadStream(path);
+  return new StreamableFile(data);
   }
 }
