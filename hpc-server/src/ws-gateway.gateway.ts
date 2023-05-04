@@ -65,10 +65,18 @@ export class WsGatewayGateway {
   }
 
   @SubscribeMessage('resultwasm')
-  handleResult(client: any, payload: any): void {
+  handleResult(client: any, payload: any) {
     console.log(`Recieved Result from Client: ${client.id}\t Message: ${payload}`);
     // TODO: Hand result to Job Definition
-    //return 'Hello world!';
+    // TODO: If successful stop? Or just return 0 of next getJob() function
+
+    // TODO: getJob() here
+    const jobDummy: JobDummy = {
+      id: 1,
+      data: ['argA', 'argB', 'argC']
+    }
+    console.log(`send Job ${jobDummy.id} to ${client.id}`)
+    client.emit('runwasm', jobDummy)
   }
 }
 
