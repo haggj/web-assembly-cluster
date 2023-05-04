@@ -34,7 +34,7 @@ var passwordCracker = js.FuncOf(func(this js.Value, args[] js.Value) any {
             return "Invalid no of arguments passed"
         }
 
-        // Copy hashToCrack into Go memory
+        // Convert hashToCrack from base64 to bytes
         hashToCrack, _ := b64.StdEncoding.DecodeString(args[0].String())
 
         // Check passwords and return if found

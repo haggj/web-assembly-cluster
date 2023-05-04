@@ -3,11 +3,10 @@ import './wasm_exec.js';
 import { io } from 'socket.io-client';
 
 export const Client = () => {
-    const [message, setMessage] = useState('');
     const [loadedWasm, setLoadedWasm] = useState('Not loaded');
     const [runningJob, setRunningJob] = useState('None');
-    const [socket, setSocket] = useState(null);
     const [socketStatus, setSocketStatus] = useState('closed')
+    let socket = null;
 
 
     // ------------------------------------- WASM -------------------------------------------------
@@ -35,9 +34,8 @@ export const Client = () => {
         socket.emit('resultwasm', JSON.stringify({}));
     }
 
-    function onRunWasm(message) {
-        // message is JSON string of the form {id: string, data: list of arguments}
-        let job = JSON.parse(message);
+    function onRunWasm(job) {
+        // job is a JS object of the form {id: string, data: list of arguments}
         setRunningJob(job.id);
         console.log("Received job:")
         console.log(job)
@@ -45,34 +43,28 @@ export const Client = () => {
         let result = {id: job.id, result: wasm_result};
         console.log("Result of job:")
         console.log(result)
-        socket.emit('resultwasm', JSON.stringify(result));
+        socket.emit('resultwasm', result);
     }
 
     const openWebSocket = () => {
         // open Websocket
-        const socket = io('http://localhost:3001');
-        socket.on('connect', () => {
-            console.log(
-                `Opened WebSocket with id: ${socket.id}`,
-            );
-            socket.emit('message', 'Test Connection success');
-        });
-        socket.on('loadwasm', onLoadWasm)
-        socket.on('runwasm', onRunWasm)
-        setSocket(socket);
+        const sock = io('http://localhost:3001');
+        sock.on('loadwasm', onLoadWasm)
+        sock.on('runwasm', onRunWasm)
+        socket = sock;
         setSocketStatus('Connected')
         console.log("WebSocket connection established")
     };
 
-    const closeWebSocket = () => {
-        // disconnect WebSocket session
-        if (socket) {
-            socket.disconnect();
-        }
-        setSocket(undefined);
-        setSocketStatus('Closed')
-        console.log("WebSocket connection closed")
-    }
+//     const closeWebSocket = () => {
+//         // disconnect WebSocket session
+//         if (socket) {
+//             socket.disconnect();
+//         }
+//         setSocket(undefined);
+//         setSocketStatus('Closed')
+//         console.log("WebSocket connection closed")
+//     }
 
    let testStuff = async() => {
 
@@ -88,8 +80,9 @@ export const Client = () => {
   };
 
   useEffect(() => {
+       if(socket == null){
         openWebSocket();
-        //testStuff();
+       }
     }, []);
 
 
