@@ -4,11 +4,12 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WebSocketServer
+  WebSocketServer,
 } from '@nestjs/websockets';
 import {AppService} from "./app.service";
 
 @WebSocketGateway({
+  path: '/api/ws',
   cors: { origin: '*' },
   pingInterval: 120000,
   pingTimeout: 120000,

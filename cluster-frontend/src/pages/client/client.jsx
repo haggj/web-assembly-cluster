@@ -70,7 +70,7 @@ export const Client = () => {
 
     const openWebSocket = () => {
         // open Websocket
-        const sock = io('http://localhost:3001');
+        const sock = io(window.location.origin, {path: '/api/ws'});
         sock.on('loadwasm', onLoadWasm)
         sock.on('runwasm', onRunWasm)
         socket = sock;
@@ -87,19 +87,6 @@ export const Client = () => {
 //         setSocketStatus('Closed')
 //         console.log("WebSocket connection closed")
 //     }
-
-   let testStuff = async() => {
-
-      await onLoadWasm("hashcrack.wasm")
-      console.log('loaded wasm');
-
-      const hash = Uint8Array.from([58, 196, 44, 131, 94, 101, 124, 169, 86, 7, 42, 215, 197, 160, 67, 233, 74, 171, 0, 112, 140, 38, 14, 99, 14, 16, 147, 84, 41, 159, 55, 51]);
-      let test_input = JSON.stringify({id: "92309", data: [btoa(hash), "hallo", "hi", "ho"]});
-      console.log(test_input)
-
-      let result = onRunWasm(test_input);
-      console.log(result);
-  };
 
   useEffect(() => {
        if(socket == null){
