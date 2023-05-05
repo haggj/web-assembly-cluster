@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './wasm_exec.js';
 import { io } from 'socket.io-client';
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 
 export const Client = () => {
@@ -110,8 +109,8 @@ export const Client = () => {
     return (
     <div style={{margin: '30px'}}>
 
-        <Card>
-      <Card.Body>
+        <Card style={{maxWidth: '700px'}}>
+      <Card.Body >
 
         <Card.Title>HPC Client</Card.Title>
         <Card.Subtitle>Your device is part of the WebAssembly cluster and is ready to execute jobs.</Card.Subtitle>
@@ -125,7 +124,6 @@ export const Client = () => {
            <>
                <img src={require('./connected.gif')} width="40" height="40" style={{marginRight: '10px'}}/>
                Connected to server.
-               {jobIsRunning.toString()}
            </>
            :
            <>
@@ -133,7 +131,6 @@ export const Client = () => {
            </>
         }
       </ListGroup.Item>
-      <ListGroup.Item>Finished jobs: {finishedJobs} </ListGroup.Item>
       <ListGroup.Item>
         {jobIsRunning?
            <>
@@ -147,6 +144,8 @@ export const Client = () => {
         }
 
       </ListGroup.Item>
+
+      <ListGroup.Item>Finished jobs: {finishedJobs} </ListGroup.Item>
     </ListGroup>
       </Card.Body>
     </Card>

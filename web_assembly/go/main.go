@@ -15,6 +15,7 @@ const ITERATIONS = 80000
 func main() {
     // Expose the function to JS
     js.Global().Set("wasmFunction", asyncFunc(passwordCracker))
+    js.Global().Set("dbgHashPassword", asyncFunc(dbgHashPassword))
     <-make(chan bool)
 }
 
@@ -28,6 +29,11 @@ func hashPassword(password string)([] byte) {
     elapsed := time.Since(start)
     fmt.Printf("%d  ->  %s\n",ITERATIONS, elapsed)
     return hash
+}
+
+var dbgHashPassword = func(this js.Value, args[] js.Value) (any, error) {
+    hash := hashPassword(args[0].String())
+    return b64.StdEncoding.EncodeToString(hash), nil
 }
 
 var passwordCracker = func(this js.Value, args[] js.Value) (any, error) {
