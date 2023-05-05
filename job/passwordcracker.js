@@ -32,7 +32,7 @@ class PasswordCracker extends Job {
             const line = this.lines[i].trim();
             if (line) {
                 const [password] = line.split(':');
-                batch.push({ password });
+                batch.push(password);
             }
         }
 
@@ -47,7 +47,7 @@ class PasswordCracker extends Job {
         let batch = this.getNextBatch();
         while (batch.length > 0) {
             this.jobs.push({id: crypto.randomUUID(),
-                            hash: this.hash,
+                            hash: btoa(this.hash),
                             data: batch, 
                             status: 'pending' });
             batch = this.getNextBatch();
