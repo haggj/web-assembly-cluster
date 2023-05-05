@@ -10,13 +10,17 @@ import (
     b64 "encoding/base64"
 )
 
-const ITERATIONS = 8000
+const ITERATIONS = 800000
 
 func main() {
     // Expose the function to JS
-    js.Global().Set("wasmFunction", passwordCracker)
+    js.Global().Set("wasmFunction", asyncFunc(passwordCracker))
     <-make(chan bool)
 }
+
+
+// ---------------------------- Password hashing  ----------------------------
+
 
 func hashPassword(password string)([] byte) {
     start := time.Now()
@@ -26,12 +30,12 @@ func hashPassword(password string)([] byte) {
     return hash
 }
 
-var passwordCracker = js.FuncOf(func(this js.Value, args[] js.Value) any {
+var passwordCracker = func(this js.Value, args[] js.Value) (any, error) {
         // args[0] is hash to hash to crack
         // args[n] is a password to check (n>=1)
 
         if len(args) < 2 {
-            return "Invalid no of arguments passed"
+            return "", fmt.Errorf("Invalid no of arguments passed")
         }
 
         // Convert hashToCrack from base64 to bytes
@@ -41,10 +45,46 @@ var passwordCracker = js.FuncOf(func(this js.Value, args[] js.Value) any {
         for _, arg := range args[1:] {
             pw := arg.String()
             if bytes.Equal(hashPassword(pw), hashToCrack) {
-                return pw
+                return pw, nil
             }
         }
 
         // Return empty string if not found
-        return ""
-})
+        return "", nil
+}
+
+// ---------------------------- Helper to make async functions ----------------------------
+
+type fn func(this js.Value, args []js.Value) (any, error)
+
+var (
+    jsErr     js.Value = js.Global().Get("Error")
+    jsPromise js.Value = js.Global().Get("Promise")
+)
+
+func asyncFunc(innerFunc fn) js.Func {
+    return js.FuncOf(func(this js.Value, args []js.Value) any {
+        handler := js.FuncOf(func(_ js.Value, promFn []js.Value) any {
+            resolve, reject := promFn[0], promFn[1]
+
+            go func() {
+                defer func() {
+                    if r := recover(); r != nil {
+                        reject.Invoke(jsErr.New(fmt.Sprint("panic:", r)))
+                    }
+                }()
+
+                res, err := innerFunc(this, args)
+                if err != nil {
+                    reject.Invoke(jsErr.New(err.Error()))
+                } else {
+                    resolve.Invoke(res)
+                }
+            }()
+
+            return nil
+        })
+
+        return jsPromise.New(handler)
+    })
+}

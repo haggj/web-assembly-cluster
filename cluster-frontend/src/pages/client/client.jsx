@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import './wasm_exec.js';
 import { io } from 'socket.io-client';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 export const Client = () => {
-    const [loadedWasm, setLoadedWasm] = useState('Not loaded');
-    const [runningJob, setRunningJob] = useState('None');
-    const [socketStatus, setSocketStatus] = useState('closed')
+    // Infos about the running job
+    const [loadedWasm, setLoadedWasm] = useState('');
+    const [jobName, setJobName] = useState('');
+    const [jobIsRunning, setJobIsRunning] = useState(false);
+
+    const [isConnected, setIsConnected] = useState(false)
     let socket = null;
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 
     // ------------------------------------- WASM -------------------------------------------------
@@ -20,8 +27,8 @@ export const Client = () => {
      };
 
     // Call the WASM function with the provided arguments
-    const runWebAssembly = (...args) => {
-        return window.wasmFunction(...args);
+    const runWebAssembly = async (...args) => {
+        return await window.wasmFunction(...args);
     }
 
      // ---------------------------------- Web Sockets ----------------------------------------------
@@ -34,12 +41,19 @@ export const Client = () => {
         socket.emit('resultwasm', JSON.stringify({}));
     }
 
-    function onRunWasm(job) {
+    async function onRunWasm(job) {
         // job is a JS object of the form {id: string, data: list of arguments}
-        setRunningJob(job.id);
         console.log("Received job:")
         console.log(job)
-        let wasm_result = runWebAssembly(...job.data);
+
+        setJobName(job.id);
+        setJobIsRunning(true);
+//         await sleep(1000);
+        await sleep(10);
+        let wasm_result = await runWebAssembly(...job.data);
+        setJobIsRunning(false);
+//         await sleep(500);
+
         let result = {id: job.id, result: wasm_result};
         console.log("Result of job:")
         console.log(result)
@@ -52,7 +66,7 @@ export const Client = () => {
         sock.on('loadwasm', onLoadWasm)
         sock.on('runwasm', onRunWasm)
         socket = sock;
-        setSocketStatus('Connected')
+        setIsConnected(true)
         console.log("WebSocket connection established")
     };
 
@@ -87,11 +101,49 @@ export const Client = () => {
 
 
     return (
-    <div>
-        <h1>Client</h1>
-        <h3>Socket Status: {socketStatus}</h3>
-        <h3>Loaded WASM: {loadedWasm}</h3>
-        <h3>Job running: {runningJob}</h3>
+    <div style={{margin: '30px'}}>
+
+        <Card>
+      <Card.Body>
+
+        <Card.Title>HPC Client</Card.Title>
+        <Card.Subtitle>Your device is part of the WebAssembly cluster and is ready to execute jobs.</Card.Subtitle>
+
+        <ListGroup style={{marginTop: '20px'}}>
+       <ListGroup.Item active>
+        Status of your client
+      </ListGroup.Item>
+      <ListGroup.Item>
+        {isConnected?
+           <>
+               <img src={require('./connected.gif')} width="40" height="40" style={{marginRight: '10px'}}/>
+               Connected to server.
+               {jobIsRunning.toString()}
+           </>
+           :
+           <>
+               Not connected to server.
+           </>
+        }
+      </ListGroup.Item>
+      <ListGroup.Item>
+        {jobIsRunning?
+           <>
+               <img src={require('./computing.gif')} width="35" height="35" style={{marginRight: '15px'}}/>
+               Job running: {loadedWasm} - {jobName}
+           </>
+           :
+           <>
+               Waiting for jobs.
+           </>
+        }
+
+      </ListGroup.Item>
+    </ListGroup>
+      </Card.Body>
+    </Card>
+
+
     </div>
     );
 };
