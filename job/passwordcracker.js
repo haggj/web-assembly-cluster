@@ -46,7 +46,7 @@ class PasswordCracker extends Job {
         this.jobs = [];
         let batch = this.getNextBatch();
         while (batch.length > 0) {
-            this.jobs.push({id: crypto.randomUUID(),
+            this.jobs.push({id: crypto.randomBytes(20).toString('hex'),
                             hash: btoa(this.hash),
                             data: batch, 
                             status: 'pending' });
