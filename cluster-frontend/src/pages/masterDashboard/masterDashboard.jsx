@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
+import Card from "react-bootstrap/Card";
+import ListGroup from "react-bootstrap/ListGroup";
+import Button from "react-bootstrap/Button";
+import {ButtonToolbar} from "react-bootstrap";
 
 export const MasterDashboard = () => {
     const [jobs, setJobs] = useState([]);
@@ -49,23 +53,30 @@ export const MasterDashboard = () => {
     }, [])
 
     return (
-        <>
-            <h1>Master Dashboard</h1>
-            <div>
-                <h2>Currently Running: {runningJob}</h2>
-                <h2>Available Jobs:</h2>
-                <ol>
+        <Card>
+            <Card.Title>
+                Master Dashboard
+            </Card.Title>
+            <Card.Subtitle>
+                Currently Running: {runningJob}
+            </Card.Subtitle>
+            <Card.Body>
+                <Card.Subtitle>
+                    Available Jobs:
+                </Card.Subtitle>
+                <ListGroup>
                     {jobs.map((job) => {
                         return (
-                            <li>
-                                <h3>{job}</h3>
-                                <button onClick={() => startJob(job)}>Start</button>
-                                <button onClick={() => stopJob(job)}>Stop</button>
-                            </li>)
+                            <ListGroup.Item>
+                                <div className="fw-bold">{job}</div>
+                                <ButtonToolbar>
+                                    <Button variant="info" onClick={() => startJob(job)}>Start</Button>
+                                    <Button variant="danger" onClick={() => stopJob(job)}>Stop</Button>
+                                </ButtonToolbar>
+                            </ListGroup.Item>)
                     })}
-                </ol>
-            </div>
-        </>
-
+                </ListGroup>
+            </Card.Body>
+        </Card>
     );
 };
