@@ -10,6 +10,7 @@ export const Client = () => {
     const [loadedWasm, setLoadedWasm] = useState('');
     const [jobName, setJobName] = useState('');
     const [jobIsRunning, setJobIsRunning] = useState(false);
+    let [finishedJobs, setFinishedJobs] = useState(0);
 
     const [isConnected, setIsConnected] = useState(false)
     let socket = null;
@@ -48,13 +49,19 @@ export const Client = () => {
 
         setJobName(job.id);
         setJobIsRunning(true);
-//         await sleep(1000);
-        await sleep(10);
-        let wasm_result = await runWebAssembly(...job.data);
-        setJobIsRunning(false);
-//         await sleep(500);
 
-        let result = {id: job.id, result: wasm_result};
+        await sleep(100);
+
+        const start = Date.now();
+        let wasm_result = await runWebAssembly(...job.data);
+        const end = Date.now();
+
+
+        setJobIsRunning(false);
+        finishedJobs += 1;
+        setFinishedJobs(finishedJobs);
+
+        let result = {id: job.id, result: wasm_result, duration: end-start};
         console.log("Result of job:")
         console.log(result)
         socket.emit('resultwasm', result);
@@ -126,6 +133,7 @@ export const Client = () => {
            </>
         }
       </ListGroup.Item>
+      <ListGroup.Item>Finished jobs: {finishedJobs} </ListGroup.Item>
       <ListGroup.Item>
         {jobIsRunning?
            <>

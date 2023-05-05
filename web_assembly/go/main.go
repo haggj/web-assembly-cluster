@@ -10,7 +10,7 @@ import (
     b64 "encoding/base64"
 )
 
-const ITERATIONS = 800000
+const ITERATIONS = 80000
 
 func main() {
     // Expose the function to JS
