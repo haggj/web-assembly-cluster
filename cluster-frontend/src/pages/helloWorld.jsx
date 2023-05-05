@@ -9,7 +9,7 @@ function HelloWorld() {
     const [incomingMessage, setIncomingMessage] = useState('');
 
     async function fetchData() {
-        const result = await axios.get('http://localhost:3001/hello-world');
+        const result = await axios.get(window.location.origin + '/hello-world');
         setMessage(result.data);
     }
 
@@ -20,7 +20,7 @@ function HelloWorld() {
 
     const openWebSocket = () => {
         // open Websocket
-        const socket = io('http://localhost:3001');
+        const socket = io(window.location.origin);
         socket.on('connect', () => {
             console.log(
                 `Opened WebSocket with id: ${socket.id}`,

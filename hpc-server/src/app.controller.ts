@@ -16,8 +16,9 @@ export class AppController {
   }
 
   @Get('/jobs')
-  getJobs(): string[] {
-    return this.appService.getJobs();
+  getJobs(): any[] {
+    //return this.appService.getJobs();
+    return this.appService.getJobsInfo();
   }
 
   @Post('/jobs')
@@ -36,6 +37,14 @@ export class AppController {
     console.log('Stop job - controller')
     console.log(params.name)
     return this.appService.stopJob(params.name)
+  }
+
+  @Post('/reset')
+  resetJob(@Body() data): string {
+    if (this.appService.resetJob(data.job)) {
+      return `Reset Job ${data.job}`
+    }
+    return `ERROR: Job ${data.job} was not found!`
   }
 
   @Header('Content-type', 'application/wasm')

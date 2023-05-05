@@ -5,14 +5,15 @@ const PasswordCracker = require('../../job/passwordcracker');
 export class AppService {
   allJobDefinitions: any[] = []
   runningJob = undefined
+  jobInitParams = {
+    batchSize: 10,
+    timeout: 1000,
+    hash: '5f4dcc3b5aa765d61d8327deb882cf99'
+  }
 
   constructor() {
     // Adding PasswordCracker Job
-    this.allJobDefinitions.push(new PasswordCracker({
-      batchSize: 10,
-      timeout: 1000,
-      hash: '5f4dcc3b5aa765d61d8327deb882cf99'
-    }));
+    this.allJobDefinitions.push(new PasswordCracker(this.jobInitParams));
   }
 
   getHello(): string {
@@ -58,6 +59,20 @@ export class AppService {
     }
   }
 
+  resetJob(jobInput: string): boolean {
+    for (let i = 0; i < this.allJobDefinitions.length; i++) {
+      if (this.allJobDefinitions[i].wasmPath === jobInput) {
+        console.log(`Reset Job ${jobInput}...`)
+        this.allJobDefinitions[i] = new PasswordCracker(this.jobInitParams)
+        if (this.runningJob && this.runningJob.wasmPath === this.allJobDefinitions[i].wasmPath) {
+          this.runningJob = this.allJobDefinitions[i]
+        }
+        return true
+      }
+    }
+    return false
+  }
+
   // handle job result
   handleResult(payload: any) {
     if (this.runningJob) {
@@ -72,5 +87,14 @@ export class AppService {
     } else {
       return null
     }
+  }
+
+  // return Infos about all Jobs
+  getJobsInfo() {
+    const allInfos = []
+    for (let job of this.allJobDefinitions) {
+      allInfos.push(job.info())
+    }
+    return allInfos
   }
 }

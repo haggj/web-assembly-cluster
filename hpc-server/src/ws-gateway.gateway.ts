@@ -20,6 +20,7 @@ export class WsGatewayGateway {
   }
 
   allClients = []
+  allMasters = []
 
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
@@ -30,6 +31,7 @@ export class WsGatewayGateway {
   handleDisconnect(client: any) {
     console.log(`Client disconnected: ${client.id}`);
     this.allClients = this.allClients.filter(c => c.id != client.id)
+    this.allMasters = this.allMasters.filter(m => m.id != client.id)
   }
 
   handleConnection(client: any, ...args: any[]) {
@@ -67,6 +69,17 @@ export class WsGatewayGateway {
       console.log(`send Job ${job.id} to ${client.id}`)
       client.emit('runwasm', job)
     }
+    for (let m of this.allMasters) {
+      m.emit('jobInfo', this.appService.getJobsInfo())
+    }
+  }
+
+  @SubscribeMessage('isMasterSocket')
+  addMaster(client: any, payload: any) {
+    console.log(`Recieved Message from Client: ${client.id}\t Message: ${payload}`);
+    this.allMasters.push(client)
+    // remove master from clients
+    this.allClients = this.allClients.filter(c => c.id != client.id)
   }
 }
 

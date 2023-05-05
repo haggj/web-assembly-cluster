@@ -36,7 +36,7 @@ export const Client = () => {
      // ---------------------------------- Web Sockets ----------------------------------------------
 
     async function onLoadWasm(message) {
-        await initWebAssembly("http://localhost:3001/wasm/" + message);
+        await initWebAssembly(window.location.origin + '/api/wasm/' + message);
         setLoadedWasm(message);
         console.log(message + " file loaded")
         // Send empty object to indicate that the WASM file was loaded and client is ready

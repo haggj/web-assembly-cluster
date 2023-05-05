@@ -57,6 +57,7 @@ class Job {
   
     info() {
       return {
+        wasmPath: this.wasmPath,
         ids: this.jobs.map(job => job.id),
         status: this.jobs.map(job => job.status),
         done: this.jobs.filter(job => job.status === 'done').length,
