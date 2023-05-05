@@ -16,7 +16,6 @@ function App() {
               <Route path="master-dashboard" element={<MasterDashboard />} />
               <Route path="client" element={<Client />} />
               <Route path="hello-world" element={<HelloWorld />} />
-              <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

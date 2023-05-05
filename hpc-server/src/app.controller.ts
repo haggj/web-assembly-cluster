@@ -4,7 +4,9 @@ import { createReadStream } from 'fs';
 import { join, resolve } from 'path';
 import {WsGatewayGateway} from "./ws-gateway.gateway";
 
-@Controller()
+@Controller({
+  path: '/api',
+})
 export class AppController {
   constructor(private readonly appService: AppService, private readonly appGateway: WsGatewayGateway) {}
 
