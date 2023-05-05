@@ -40,7 +40,7 @@ export const Client = () => {
         setLoadedWasm(message);
         console.log(message + " file loaded")
         // Send empty object to indicate that the WASM file was loaded and client is ready
-        socket.emit('resultwasm', JSON.stringify({}));
+        socket.emit('resultwasm', {});
     }
 
     async function onRunWasm(job) {
