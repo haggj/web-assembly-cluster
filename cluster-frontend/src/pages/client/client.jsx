@@ -3,6 +3,8 @@ import './wasm_exec.js';
 import { io } from 'socket.io-client';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
+import {Link} from "react-router-dom";
+
 
 export const Client = () => {
     // Infos about the running job
@@ -150,6 +152,7 @@ export const Client = () => {
       </Card.Body>
     </Card>
 
+            <Link to="/">Home</Link>
 
     </div>
     );
