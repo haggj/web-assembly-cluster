@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './wasm_exec.js';
-import { io } from 'socket.io-client';
+import {io} from 'socket.io-client';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import {Link} from "react-router-dom";
@@ -23,17 +23,17 @@ export const Client = () => {
 
     // Download WASM file and load it into the JS scope
     const initWebAssembly = async (wasm_path) => {
-       let go = new window.Go();
-       let result = await WebAssembly.instantiateStreaming(fetch(wasm_path, {cache: "no-store"}), go.importObject);
-       go.run(result.instance);
-     };
+        let go = new window.Go();
+        let result = await WebAssembly.instantiateStreaming(fetch(wasm_path, {cache: "no-store"}), go.importObject);
+        go.run(result.instance);
+    };
 
     // Call the WASM function with the provided arguments
     const runWebAssembly = async (...args) => {
         return await window.wasmFunction(...args);
     }
 
-     // ---------------------------------- Web Sockets ----------------------------------------------
+    // ---------------------------------- Web Sockets ----------------------------------------------
 
     async function onLoadWasm(message) {
         await initWebAssembly(window.location.origin + '/api/wasm/' + message);
@@ -62,7 +62,7 @@ export const Client = () => {
         finishedJobs += 1;
         setFinishedJobs(finishedJobs);
 
-        let result = {id: job.id, result: wasm_result, duration: end-start};
+        let result = {id: job.id, result: wasm_result, duration: end - start};
         console.log("Result of job:")
         console.log(result)
         socket.emit('resultwasm', result);
@@ -88,59 +88,62 @@ export const Client = () => {
 //         console.log("WebSocket connection closed")
 //     }
 
-  useEffect(() => {
-       if(socket == null){
-        openWebSocket();
-       }
+    useEffect(() => {
+        if (socket == null) {
+            openWebSocket();
+        }
     }, []);
 
 
     return (
-    <div style={{margin: '30px'}}>
+        <div style={{margin: '30px'}}>
 
-        <Card style={{maxWidth: '700px'}}>
-      <Card.Body >
+            <Card style={{maxWidth: '700px'}}>
+                <Card.Body>
 
-        <Card.Title>HPC Client</Card.Title>
-        <Card.Subtitle>Your device is part of the WebAssembly cluster and is ready to execute jobs.</Card.Subtitle>
+                    <Card.Title>HPC Client</Card.Title>
+                    <Card.Subtitle>Your device is part of the WebAssembly cluster and is ready to execute
+                        jobs.</Card.Subtitle>
 
-        <ListGroup style={{marginTop: '20px'}}>
-       <ListGroup.Item active>
-        Status of your client
-      </ListGroup.Item>
-      <ListGroup.Item>
-        {isConnected?
-           <>
-               <img src={require('./connected.gif')} width="40" height="40" style={{marginRight: '10px'}}/>
-               Connected to server.
-           </>
-           :
-           <>
-               Not connected to server.
-           </>
-        }
-      </ListGroup.Item>
-      <ListGroup.Item>
-        {jobIsRunning?
-           <>
-               <img src={require('./computing.gif')} width="35" height="35" style={{marginRight: '15px'}}/>
-               Job running: {loadedWasm} - {jobName}
-           </>
-           :
-           <>
-               Waiting for jobs.
-           </>
-        }
+                    <ListGroup style={{marginTop: '20px'}}>
+                        <ListGroup.Item active>
+                            Status of your client
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            {isConnected ?
+                                <>
+                                    <img src={require('./connected.gif')} width="40" height="40"
+                                         style={{marginRight: '10px'}}/>
+                                    Connected to server.
+                                </>
+                                :
+                                <>
+                                    Not connected to server.
+                                </>
+                            }
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            {jobIsRunning ?
+                                <>
+                                    <img src={require('./computing.gif')} width="35" height="35"
+                                         style={{marginRight: '15px'}}/>
+                                    Job running: {loadedWasm} - {jobName}
+                                </>
+                                :
+                                <>
+                                    Waiting for jobs.
+                                </>
+                            }
 
-      </ListGroup.Item>
+                        </ListGroup.Item>
 
-      <ListGroup.Item>Finished jobs: {finishedJobs} </ListGroup.Item>
-    </ListGroup>
-      </Card.Body>
-    </Card>
+                        <ListGroup.Item>Finished jobs: {finishedJobs} </ListGroup.Item>
+                    </ListGroup>
+                </Card.Body>
+            </Card>
 
             <Link to="/">Home</Link>
 
-    </div>
+        </div>
     );
 };

@@ -7,7 +7,7 @@ export class AppService {
   runningJob = undefined
   jobInitParams = {
     batchSize: 10,
-    timeout: 1000,
+    timeout: 5000,
     hash: '5f4dcc3b5aa765d61d8327deb882cf99'
   }
 
@@ -83,6 +83,7 @@ export class AppService {
   // get next job of running JobDefinition
   getNextJob(): any {
     if (this.runningJob) {
+      console.log(this.runningJob.get_statistics())
       return this.runningJob.getJob()
     } else {
       return null
