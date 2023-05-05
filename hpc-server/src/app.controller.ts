@@ -2,7 +2,7 @@ import {Body, Controller, Delete, Get, Post, StreamableFile, Header, Param} from
 import { AppService } from './app.service';
 import { createReadStream } from 'fs';
 import { join, resolve } from 'path';
-import {JobDefinitionDummy, WsGatewayGateway} from "./ws-gateway.gateway";
+import {WsGatewayGateway} from "./ws-gateway.gateway";
 
 @Controller()
 export class AppController {
@@ -15,28 +15,25 @@ export class AppController {
 
   @Get('/jobs')
   getJobs(): string[] {
-    return ['hashcrack.wasm', 'Job #2', 'Prime calculator', '...']
+    return this.appService.getJobs();
   }
 
   @Post('/jobs')
   runJob(@Body() data): string {
-    console.log(`Start Job ${data.job}...`)
-    // TODO: Get suitable JobDefiniton Object
-    const jobDefiniton: JobDefinitionDummy = {
-      name: data.job,
-      path: data.job,
-      jobs: []
+    const wasmPath = this.appService.runJob(data.job)
+    if (wasmPath) {
+      this.appGateway.broadcastWasm(wasmPath)
+      //this.appGateway.broadcastJobs(this.appService.runningJob)
+      return `Started Job ${data.job}`
     }
-
-    this.appGateway.broadcastWasm(jobDefiniton.path)
-    //this.appGateway.broadcastJobs(jobDefiniton)
-    return `Started Job ${data.job}`
+    return `ERROR: Job ${data.job} was not found!`
   }
 
-  @Delete('/jobs')
-  stopJob(@Body() data): string {
-    console.log(`Stop Job ${data.job}...`)
-    return `Stopped Job ${data.job}`
+  @Delete('/jobs/:name')
+  stopJob(@Param() params: any): string {
+    console.log('Stop job - controller')
+    console.log(params.name)
+    return this.appService.stopJob(params.name)
   }
 
   @Header('Content-type', 'application/wasm')

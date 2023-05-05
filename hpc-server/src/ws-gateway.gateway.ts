@@ -6,17 +6,7 @@ import {
   OnGatewayDisconnect,
   WebSocketServer
 } from '@nestjs/websockets';
-
-interface JobDummy {
-  id: number,
-  data: string[]
-}
-
-export interface JobDefinitionDummy {
-  name: string,
-  path: string,
-  jobs: JobDummy[]
-}
+import {AppService} from "./app.service";
 
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -24,6 +14,10 @@ export interface JobDefinitionDummy {
   pingTimeout: 120000,
 })
 export class WsGatewayGateway {
+
+  constructor(private readonly appService: AppService,) {
+  }
+
   allClients = []
 
   @SubscribeMessage('message')
@@ -50,33 +44,28 @@ export class WsGatewayGateway {
     }
   }
 
-  broadcastJobs(jodDefinition: JobDefinitionDummy) {
-    let i: number = 0
+  broadcastJobs(jobDefinition: any) {
     for (let c of this.allClients) {
-      // TODO: getJob() here
-      i = i + 1
-      const jobDummy: JobDummy = {
-        id: i,
-        data: ['argA', 'argB', 'argC']
-      }
-      console.log(`send Job ${jobDummy.id} to ${c.id}`)
-      c.emit('runwasm', JSON.stringify(jobDummy))
+      const job = jobDefinition.getJob()
+      console.log(`send Job ${job.id} to ${c.id}`)
+      c.emit('runwasm', JSON.stringify(job))
     }
   }
 
   @SubscribeMessage('resultwasm')
   handleResult(client: any, payload: any) {
     console.log(`Recieved Result from Client: ${client.id}\t Message: ${payload}`);
-    // TODO: Hand result to Job Definition
-    // TODO: If successful stop? Or just return 0 of next getJob() function
-
-    // TODO: getJob() here
-    const jobDummy: JobDummy = {
-      id: 1,
-      data: ['argA', 'argB', 'argC']
+    // Push result to running JobDefinition (if not initializing result)
+    if (Object.keys(payload).length !== 0) {
+      this.appService.handleResult(payload)
     }
-    console.log(`send Job ${jobDummy.id} to ${client.id}`)
-    client.emit('runwasm', jobDummy)
+
+    // Send next Job
+    const job = this.appService.getNextJob()
+    if (job) {
+      console.log(`send Job ${job.id} to ${client.id}`)
+      client.emit('runwasm', job)
+    }
   }
 }
 

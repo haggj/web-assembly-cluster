@@ -33,7 +33,7 @@ export const MasterDashboard = () => {
         if (runningJob) {
             if (job === runningJob) {
                 console.log(`stopping job ${job}...`)
-                const result = await axios.delete('http://localhost:3001/jobs', {'job': job});
+                const result = await axios.delete(`http://localhost:3001/jobs/${job}`);
                 if (result.status === 200) {
                     console.log('successfully stoped job')
                     setRunningJob(undefined)
