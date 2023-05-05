@@ -61,6 +61,30 @@ class PasswordCracker extends Job {
         }
     }
 
+    get_statistics() {
+        let jobs_done = this.jobs.filter(job => job.status === 'done');
+        let durations = [];
+        let durations_latency = [];
+        for (let i = 0; i < jobs_done.length; i++) {
+            const job = jobs_done[i];
+            durations.push(job.end - job.start);
+            durations_latency.push(job.end - job.start - job.result.duration);
+            console.log(job.result.duration);
+        }
+        console.log(durations_latency);
+        let job_avg_duration = durations.reduce((a, b) => a + b, 0) / durations.length;
+        let job_avg_latency = durations_latency.reduce((a, b) => a + b, 0) / durations_latency.length;
+        this.statistics = {
+            job_avg_duration: job_avg_duration,
+            job_min_duration: Math.min(...durations),
+            job_max_duration: Math.max(...durations),
+            job_durations: durations,
+            job_avg_latency: job_avg_latency,
+            pwd_avg_duration: job_avg_duration / this.batchSize,
+            pwd_avg_latency: job_avg_latency / this.batchSize,
+        };
+        return this.statistics;
+    }
 
 }
 

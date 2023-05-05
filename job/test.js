@@ -25,11 +25,14 @@ for (let i = 0; i < 10; i++) {
 console.log("Job info:");
 console.log(job.info());
 
+wait(500);
+
 console.log("Writing dummy results for jobs 2 to 10...");
 for (let i = 1; i < 10; i++) {
   const res = {
     id: jobs[i].id,
-    result: ''
+    result: '',
+    duration: 400,
   }
   job.receiveResult(res);
 }
@@ -44,15 +47,19 @@ console.log("Getting jobs...");
 console.log(job.getJob());
 console.log(job.getJob());
 
+wait(800);
+
 console.log("Writing dummy result for job 1...")
 const res = {
   id: jobs[0].id,
-  result: ''
+  result: '',
+  duration: 200,
 }
 job.receiveResult(res);
 
 console.log("Job info:");
 console.log(job.info());
+console.log(job.get_statistics());
 
 function wait(ms){
   var start = new Date().getTime();

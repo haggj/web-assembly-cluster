@@ -4,6 +4,7 @@ class Job {
         this.timeout = initParams.timeout;
         this.createJobs();
         this.status = 'pending';
+        this.statistics = NaN;
     }
   
     createJobs() {
@@ -39,12 +40,14 @@ class Job {
     }
   
     receiveResult(result) {
+        const now = Date.now();
         var job_idx = this.jobs.findIndex(obj => {
             return obj.id === result.id
           })
         this.jobs[job_idx].status = 'done';
-        this.jobs[job_idx].result = result.result;
+        this.jobs[job_idx].result = result;
         this.check_term(result);
+        this.jobs[job_idx].end = now;
     }
 
     check_term(result) {
@@ -63,7 +66,11 @@ class Job {
         job_status: this.status,
       };
     }
+
+    get_statistics() {
+      return this.statistics;
+    }
+
   }
   
-
 module.exports = Job;
