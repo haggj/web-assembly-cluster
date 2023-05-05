@@ -3,6 +3,7 @@ class Job {
         this.wasmPath = NaN;
         this.timeout = initParams.timeout;
         this.createJobs();
+        this.status = 'pending';
     }
   
     createJobs() {
@@ -15,19 +16,22 @@ class Job {
   
     getJob() {
         const now = Date.now();
-      
-        for (let i = 0; i < this.jobs.length; i++) {
-          const job = this.jobs[i];
-      
-          if (job.status !== 'running' && job.status !== 'done') {
-            job.status = 'running';
-            job.start = now;
-            return job;
-          }
-      
-          if (job.status === 'running' && now - job.start > this.timeout) {
-            job.start = now;
-            return job;
+        if (this.status !== 'done') {
+          this.status = 'running';
+
+          for (let i = 0; i < this.jobs.length; i++) {
+            const job = this.jobs[i];
+        
+            if (job.status !== 'running' && job.status !== 'done') {
+              job.status = 'running';
+              job.start = now;
+              return job;
+            }
+        
+            if (job.status === 'running' && now - job.start > this.timeout) {
+              job.start = now;
+              return job;
+            }
           }
         }
 
@@ -40,6 +44,12 @@ class Job {
           })
         this.jobs[job_idx].status = 'done';
         this.jobs[job_idx].result = result.result;
+        this.check_term(result);
+    }
+
+    check_term(result) {
+      this.status = 'running';
+      return false;
     }
   
     info() {
@@ -50,6 +60,7 @@ class Job {
         running: this.jobs.filter(job => job.status === 'running').length,
         pending: this.jobs.filter(job => job.status === 'pending').length,
         total: this.jobs.length,
+        job_status: this.status,
       };
     }
   }

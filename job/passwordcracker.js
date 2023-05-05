@@ -41,6 +41,13 @@ class PasswordCracker extends Job {
         return batch;
     }
 
+    check_term(result) {
+        if (result.result.length > 0) {
+            this.status = 'done';
+            return true;
+        }
+    }
+
     createJobs() {
         this.readRockYouFile();
         this.jobs = [];
@@ -53,6 +60,8 @@ class PasswordCracker extends Job {
             batch = this.getNextBatch();
         }
     }
+
+
 }
 
 module.exports = PasswordCracker;
