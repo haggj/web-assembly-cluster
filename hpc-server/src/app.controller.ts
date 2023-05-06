@@ -54,4 +54,12 @@ export class AppController {
   const data = createReadStream(path);
   return new StreamableFile(data);
   }
+
+  @Header('Content-type', 'text/javascript')
+  @Get('wasm_worker.js')
+  getWasmWorker(@Param('file') file): StreamableFile{
+    let path = join(process.cwd(), 'wasm/wasm_worker.js');
+    const data = createReadStream(path);
+    return new StreamableFile(data);
+  }
 }

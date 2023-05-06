@@ -7,40 +7,60 @@ import {Link} from "react-router-dom";
 
 
 export const Client = () => {
-    // Infos about the running job
+    // Status information about the client for UI
     const [loadedWasm, setLoadedWasm] = useState('');
     const [jobName, setJobName] = useState('');
     const [jobIsRunning, setJobIsRunning] = useState(false);
     let [finishedJobs, setFinishedJobs] = useState(0);
 
-    const [isConnected, setIsConnected] = useState(false)
+    // Variables to maintain the websocket connection to the server
     let socket = null;
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const [isConnected, setIsConnected] = useState(false)
+
+    // Stores the webworker which runs go wasm files
+    let worker = null;
+    let job_start = null;
+    let latest_job = null;
 
 
-    // ------------------------------------- WASM -------------------------------------------------
+    const workerEventListener =  function(event) {
 
+        const { eventType, eventData, eventId } = event.data;
 
-    // Download WASM file and load it into the JS scope
-    const initWebAssembly = async (wasm_path) => {
-        let go = new window.Go();
-        let result = await WebAssembly.instantiateStreaming(fetch(wasm_path, {cache: "no-store"}), go.importObject);
-        go.run(result.instance);
-    };
+        if (eventType === "INITIALISED") {
+            // Webworker is initialized, inform server that client is ready
+            setLoadedWasm(eventData);
+            console.log(eventData + " file loaded")
+            // Send empty object to indicate that the WASM file was loaded and client is ready
+            socket.emit('resultwasm', {});
+        } else if (eventType === "RESULT") {
+            const job_end = Date.now();
 
-    // Call the WASM function with the provided arguments
-    const runWebAssembly = async (...args) => {
-        return await window.wasmFunction(...args);
+            setJobIsRunning(false);
+            finishedJobs += 1;
+            setFinishedJobs(finishedJobs);
+
+            let result = {id: latest_job.id, result: eventData, duration: job_end - job_start};
+            console.log("Result of job:")
+            console.log(result)
+            socket.emit('resultwasm', result);
+        } else if (eventType === "ERROR") {
+            console.log("Error during job:")
+            console.log(eventData)
+            setJobIsRunning(false);
+        }
+
     }
 
-    // ---------------------------------- Web Sockets ----------------------------------------------
-
-    async function onLoadWasm(message) {
-        await initWebAssembly(window.location.origin + '/api/wasm/' + message);
-        setLoadedWasm(message);
-        console.log(message + " file loaded")
-        // Send empty object to indicate that the WASM file was loaded and client is ready
-        socket.emit('resultwasm', {});
+    async function onLoadWasm(wasm_path) {
+        // Initialize a new webworker with the requested go wasm file
+        worker = new Worker('api/wasm_worker.js');
+        worker.addEventListener('message', workerEventListener)
+        let data = {
+            root: window.location.origin + "/api/wasm/",
+            path: wasm_path
+        }
+        worker.postMessage({eventType: "INITIALISE", eventData: data});
     }
 
     async function onRunWasm(job) {
@@ -48,24 +68,12 @@ export const Client = () => {
         console.log("Received job:")
         console.log(job)
 
-        setJobName(job.id);
+        setJobName(job.id.slice(0,10));
         setJobIsRunning(true);
+        latest_job = job;
 
-        await sleep(100);
-
-        const start = Date.now();
-        let wasm_result = await runWebAssembly(...job.data);
-        const end = Date.now();
-
-
-        setJobIsRunning(false);
-        finishedJobs += 1;
-        setFinishedJobs(finishedJobs);
-
-        let result = {id: job.id, result: wasm_result, duration: end - start};
-        console.log("Result of job:")
-        console.log(result)
-        socket.emit('resultwasm', result);
+        job_start = Date.now();
+        worker.postMessage({eventType: "CALL", eventData: job.data});
     }
 
     const openWebSocket = () => {
@@ -78,15 +86,6 @@ export const Client = () => {
         console.log("WebSocket connection established")
     };
 
-//     const closeWebSocket = () => {
-//         // disconnect WebSocket session
-//         if (socket) {
-//             socket.disconnect();
-//         }
-//         setSocket(undefined);
-//         setSocketStatus('Closed')
-//         console.log("WebSocket connection closed")
-//     }
 
     useEffect(() => {
         if (socket == null) {
