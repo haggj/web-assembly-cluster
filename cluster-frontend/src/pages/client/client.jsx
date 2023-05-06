@@ -79,16 +79,26 @@ export const Client = () => {
     const openWebSocket = () => {
         // open Websocket
         const sock = io(window.location.origin, {path: '/api/ws'});
+        sock.on("connect_error", (err) => {
+            console.log(`connect_error due to ${err.message}`);
+            setIsConnected(false)
+        });
+        sock.on("connect", (err) => {
+            if(socket != null){
+                console.log("Disconnected earlier connection")
+                socket.disconnect()
+            }
+            console.log("WebSocket connection established")
+            socket = sock;
+            setIsConnected(true)
+        });
         sock.on('loadwasm', onLoadWasm)
         sock.on('runwasm', onRunWasm)
-        socket = sock;
-        setIsConnected(true)
-        console.log("WebSocket connection established")
     };
 
 
     useEffect(() => {
-        if (socket == null) {
+        if (socket === null) {
             openWebSocket();
         }
     }, []);
