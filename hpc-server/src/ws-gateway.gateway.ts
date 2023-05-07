@@ -66,10 +66,14 @@ export class WsGatewayGateway {
       }
     }
 
+    // send client ID to masters
     for (let m of this.allMasters) {
       m.emit('clientInfo', this.returnAllClientIDs())
     }
 
+    // send WASM to client, if available
+    // -> this will result in the client to take part in the currently running job
+    this.sendWasm(client)
   }
 
   returnAllClientIDs() {
@@ -95,6 +99,31 @@ export class WsGatewayGateway {
     }
   }
 
+  // Send next Job
+  sendWasm(client: any): boolean {
+    const wasm = this.appService.getWasmPath()
+    if (wasm) {
+      console.log(`send Wasm Path ${wasm} to ${client.id}`)
+      client.emit('loadwasm', wasm)
+      return true
+    }
+    return false
+  }
+
+  // Send next Job
+  sendJob(client: any): boolean {
+    const job = this.appService.getNextJob()
+    if (job) {
+      console.log(`send Job ${job.id} to ${client.id}`)
+      client.emit('runwasm', job)
+      for (let m of this.allMasters) {
+        m.emit('jobInfo', this.appService.getJobsInfo())
+      }
+      return true
+    }
+    return false
+  }
+
   @SubscribeMessage('resultwasm')
   handleResult(client: any, payload: any) {
     console.log(`Recieved Result from Client: ${client.id}\t Message: ${payload}`);
@@ -103,15 +132,7 @@ export class WsGatewayGateway {
       this.appService.handleResult(payload)
     }
 
-    // Send next Job
-    const job = this.appService.getNextJob()
-    if (job) {
-      console.log(`send Job ${job.id} to ${client.id}`)
-      client.emit('runwasm', job)
-    }
-    for (let m of this.allMasters) {
-      m.emit('jobInfo', this.appService.getJobsInfo())
-    }
+    this.sendJob(client)
   }
 
   @SubscribeMessage('isMasterSocket')

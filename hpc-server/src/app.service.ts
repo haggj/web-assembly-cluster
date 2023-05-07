@@ -87,8 +87,16 @@ export class AppService {
   // get next job of running JobDefinition
   getNextJob(): any {
     if (this.runningJob) {
-      console.log(this.runningJob.get_statistics())
       return this.runningJob.getJob()
+    } else {
+      return null
+    }
+  }
+
+  // return wasm path of running job
+  getWasmPath(): any {
+    if (this.runningJob) {
+      return this.runningJob.wasmPath
     } else {
       return null
     }
