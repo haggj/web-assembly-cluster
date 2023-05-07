@@ -20,6 +20,7 @@ export class WsGatewayGateway {
   }
 
   allClients = []
+  allWorkers = []
   allMasters = []
 
   @SubscribeMessage('message')
@@ -32,12 +33,51 @@ export class WsGatewayGateway {
     console.log(`Client disconnected: ${client.id}`);
     this.allClients = this.allClients.filter(c => c.id != client.id)
     this.allMasters = this.allMasters.filter(m => m.id != client.id)
+
+    for (let cl of this.allClients) {
+      //console.log('Client: ' + JSON.stringify(cl.id))
+      if (this.allMasters.filter(m => m.id == cl.id).length > 0) {
+        this.allClients = this.allClients.filter(c => c.id != cl.id)
+        console.log('Master: ' + JSON.stringify(cl.id))
+      }
+      else {
+        console.log('Client: ' + JSON.stringify(cl.id))
+      }
+    }
+
+    for (let m of this.allMasters) {
+      m.emit('clientInfo', this.returnAllClientIDs())
+    }
   }
 
   handleConnection(client: any, ...args: any[]) {
     console.log(`Client connected: ${client.id}`);
     this.allClients.push(client)
     client.emit('message', `A new client ${client.id} has connected`);
+
+    for (let cl of this.allClients) {
+      //console.log('Client: ' + JSON.stringify(cl.id))
+      if (this.allMasters.filter(m => m.id == cl.id).length > 0) {
+        this.allClients = this.allClients.filter(c => c.id != cl.id)
+        console.log('Master: ' + JSON.stringify(cl.id))
+      }
+      else {
+        console.log('Client: ' + JSON.stringify(cl.id))
+      }
+    }
+
+    for (let m of this.allMasters) {
+      m.emit('clientInfo', this.returnAllClientIDs())
+    }
+
+  }
+
+  returnAllClientIDs() {
+    this.allWorkers = this.allClients.filter(c => !this.allMasters.includes(c))
+    for (let w of this.allWorkers) {
+      console.log('Worker: ' + JSON.stringify(w.id))
+    }
+    return this.allWorkers.map(c => c.id)
   }
 
   broadcastWasm(path: string) {
@@ -80,6 +120,9 @@ export class WsGatewayGateway {
     this.allMasters.push(client)
     // remove master from clients
     this.allClients = this.allClients.filter(c => c.id != client.id)
+    for (let m of this.allMasters) {
+      m.emit('clientInfo', this.returnAllClientIDs())
+    }
   }
 }
 

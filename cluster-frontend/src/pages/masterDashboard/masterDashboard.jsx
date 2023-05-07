@@ -6,9 +6,11 @@ import Button from "react-bootstrap/Button";
 import {Badge, ButtonToolbar, ProgressBar} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
+import { on } from 'events';
 
 export const MasterDashboard = () => {
     const [jobs, setJobs] = useState([]);
+    const [clients, setClients] = useState([]);
     const [runningJob, setRunningJob] = useState(undefined)
     let socket = null;
 
@@ -17,10 +19,16 @@ export const MasterDashboard = () => {
         setJobs(message)
     }
 
+    async function onClientInfo(message) {
+        console.log(message)
+        setClients(message)
+    }
+
     const openWebSocket = () => {
         // open Websocket
         const sock = io(window.location.origin, {path: '/api/ws'});
         sock.on('jobInfo', onJobInfo)
+        sock.on('clientInfo', onClientInfo)
         socket = sock;
         console.log("WebSocket connection established")
         socket.emit('isMasterSocket', 'I am a Master Socket!');
@@ -66,6 +74,7 @@ export const MasterDashboard = () => {
     }
 
     const resetJob = async (job) => {
+        stopJob(job)
         console.log(`reset job ${job}...`)
         const result = await axios.post(window.location.origin + '/api/reset', {'job': job});
         if (result.status === 201) {
@@ -124,6 +133,19 @@ export const MasterDashboard = () => {
                         Clients
                     </Card.Title>
                     <Card.Body>
+                        <Card.Subtitle>
+                            Currently Connected: {clients.length}
+                        </Card.Subtitle>
+                        <ListGroup> 
+                        {clients.map((client) => {
+                            return (
+                                <ListGroup.Item>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div className="fw-bold">{client}</div>
+                                    </div>
+                                </ListGroup.Item>)
+                        })}
+                        </ListGroup>
                         Client Info here
                     </Card.Body>
                 </Card.Body>
