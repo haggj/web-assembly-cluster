@@ -11,6 +11,7 @@ class PasswordCracker extends Job {
         this.wasmPath = "hashcrack.wasm";
         this.timeout = initParams.timeout;
         this.hash = initParams.hash;
+        this.name = initParams.name;
         this.createJobs();
     }
 
@@ -42,6 +43,7 @@ class PasswordCracker extends Job {
     }
 
     check_term(result) {
+        console.log("RESULT IS: " + JSON.stringify(result));
         if (result.result.length > 0) {
             this.status = 'done';
             return true;

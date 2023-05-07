@@ -5,6 +5,7 @@ class Job {
         this.createJobs();
         this.status = 'pending';
         this.statistics = NaN;
+        this.name = initParams.name;
     }
   
     createJobs() {
@@ -34,7 +35,7 @@ class Job {
               return job;
             }
           }
-          
+
           this.status = 'done';
         }
 
