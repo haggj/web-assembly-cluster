@@ -34,6 +34,8 @@ class Job {
               return job;
             }
           }
+          
+          this.status = 'done';
         }
 
         return null;
