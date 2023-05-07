@@ -67,6 +67,7 @@ class Job {
         pending: this.jobs.filter(job => job.status === 'pending').length,
         total: this.jobs.length,
         job_status: this.status,
+        statistics: this.statistics
       };
     }
 
