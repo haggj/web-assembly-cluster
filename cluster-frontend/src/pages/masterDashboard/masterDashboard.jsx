@@ -3,13 +3,17 @@ import axios from "axios";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
-import {Badge, ButtonToolbar, ProgressBar} from "react-bootstrap";
+import {Badge, ButtonToolbar, ProgressBar, Toast, ToastContainer} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
 
 export const MasterDashboard = () => {
     const [jobs, setJobs] = useState([]);
     const [runningJob, setRunningJob] = useState(undefined)
+    const [tostTextSuccess, setToastTextSuccess] = useState('')
+    const [showToastSuccess, setShowToastSuccess] = useState(false)
+    const [tostTextErrror, setToastTextError] = useState('')
+    const [showToastError, setShowToastError] = useState(false)
     let socket = null;
 
     async function onJobInfo(message) {
@@ -34,14 +38,20 @@ export const MasterDashboard = () => {
     const startJob = async (job) => {
         if (runningJob) {
             console.log(`Can not start ${job}!\n Currently running ${runningJob}`)
+            setToastTextError(`Can not start ${job}!\n Currently running ${runningJob}`)
+            setShowToastError(true)
         } else {
             console.log(`starting job ${job}...`)
             const result = await axios.post(window.location.origin + '/api/jobs', {'job': job});
             if (result.status === 201) {
                 console.log('successfully started job')
                 setRunningJob(job)
+                setToastTextSuccess(`Successfully started job ${job}`)
+                setShowToastSuccess(true)
             } else {
                 console.log(`Server returned ${result.status}`)
+                setToastTextError(`Could not START job ${job}! Server returned status ${result.status}`)
+                setShowToastError(true)
             }
         }
     }
@@ -52,29 +62,50 @@ export const MasterDashboard = () => {
                 console.log(`stopping job ${job}...`)
                 const result = await axios.delete(window.location.origin + `/api/jobs/${job}`);
                 if (result.status === 200) {
-                    console.log('successfully stoped job')
+                    console.log('successfully stopped job')
                     setRunningJob(undefined)
+                    setToastTextSuccess(`Successfully stopped job ${job}`)
+                    setShowToastSuccess(true)
                 } else {
                     console.log(`Server returned ${result.status}`)
+                    setToastTextError(`Could not STOP job ${job}! Server returned status ${result.status}`)
+                    setShowToastError(true)
                 }
             } else {
                 console.log(`Cant stop ${job}! Job ${runningJob} is currently running currently`)
+                setToastTextError(`Cant stop ${job}! Job ${runningJob} is currently running currently`)
+                setShowToastError(true)
             }
         } else {
             console.log('Cant stop job!\n No Jobs are running currently')
-        }
-    }
-
-    const resetJob = async (job) => {
-        console.log(`reset job ${job}...`)
-        const result = await axios.post(window.location.origin + '/api/reset', {'job': job});
-        if (result.status === 201) {
-            console.log('successfully reset job')
-        } else {
-            console.log(`Server returned ${result.status}`)
+            setToastTextError('Cant stop job!\n No Jobs are running currently')
+            setShowToastError(true)
         }
         fetchJobs()
     }
+
+    const resetJob = async (job) => {
+        if (runningJob !== job) {
+            console.log(`reset job ${job}...`)
+            const result = await axios.post(window.location.origin + '/api/reset', {'job': job});
+            if (result.status === 201) {
+                console.log('successfully reset job')
+                setToastTextSuccess(`Successfully reset job ${job}`)
+                setShowToastSuccess(true)
+            } else {
+                console.log(`Server returned ${result.status}`)
+                setToastTextError(`Cant reset job! Server returned status ${result.status}`)
+                setShowToastError(true)
+            }
+        } else {
+            setToastTextError(`Cant reset job ${job}!\n It is currently running.`)
+            setShowToastError(true)
+        }
+        fetchJobs()
+    }
+
+    const toggleShowToastSuccess = () => setShowToastSuccess(!showToastSuccess)
+    const toggleShowToastError = () => setShowToastError(!showToastError)
 
     useEffect(() => {
         fetchJobs();
@@ -94,27 +125,28 @@ export const MasterDashboard = () => {
                         Jobs
                     </Card.Title>
                     <Card.Body>
-                        <Card.Subtitle>
-                            Currently Running: {runningJob}
-                        </Card.Subtitle>
-                        <ListGroup>
+                        <Card.Title>
+                            Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
+                        </Card.Title>
+                        <ListGroup style={{ marginTop: '20px' }}>
                             {jobs.map((job) => {
                                 return (
                                     <ListGroup.Item>
                                         <div className="d-flex justify-content-between align-items-center">
                                             <div className="fw-bold">{job.wasmPath}</div>
-                                            <Badge bg="secondary">{job.job_status}</Badge>
+                                            <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
                                             <ButtonToolbar>
-                                                <Button variant="info" onClick={() => startJob(job.wasmPath)}>Start</Button>
+                                                <Button variant="primary" onClick={() => startJob(job.wasmPath)}>Start</Button>
                                                 <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.wasmPath)}>Stop</Button>
                                                 <Button variant="outline-dark" style={{marginLeft: '30px'}} onClick={() => resetJob(job.wasmPath)}>Reset</Button>
                                             </ButtonToolbar>
                                         </div>
-                                        <div style={{marginTop: '15px'}}>
+                                        <div style={{marginTop: '15px' }}>
                                             <ProgressBar>
                                                 <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
                                                 <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
                                             </ProgressBar>
+                                            <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
                                         </div>
                                     </ListGroup.Item>)
                             })}
@@ -129,6 +161,26 @@ export const MasterDashboard = () => {
                 </Card.Body>
             </Card>
             <Link to="/">Home</Link>
+            <ToastContainer className="position-static">
+                <Toast show={showToastSuccess} onClose={toggleShowToastSuccess}>
+                    <Toast.Header>
+                        <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+                        <strong className="me-auto">Job Information</strong>
+                        <Badge bg='success'>Information</Badge>
+                    </Toast.Header>
+                    <Toast.Body>{tostTextSuccess}</Toast.Body>
+                </Toast>
+            </ToastContainer>
+            <ToastContainer>
+                <Toast show={showToastError} onClose={toggleShowToastError}>
+                    <Toast.Header>
+                        <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+                        <strong className="me-auto">Job Information</strong>
+                        <Badge bg='warning'>Error</Badge>
+                    </Toast.Header>
+                    <Toast.Body>{tostTextErrror}</Toast.Body>
+                </Toast>
+            </ToastContainer>
         </div>
     );
 };
