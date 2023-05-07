@@ -3,7 +3,7 @@ import axios from "axios";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
-import {Badge, ButtonToolbar, ProgressBar, Toast, ToastContainer} from "react-bootstrap";
+import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
 import { on } from 'events';
@@ -20,6 +20,8 @@ export const MasterDashboard = () => {
 
     async function onJobInfo(message) {
         console.log(message)
+        // if job is done, remove it from running job
+        jobs.map(job => {if (job.job_status === 'done') setRunningJob(undefined)})
         setJobs(message)
     }
 
@@ -156,7 +158,41 @@ export const MasterDashboard = () => {
                                             </ProgressBar>
                                             <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
                                         </div>
-                                    </ListGroup.Item>)
+                                        <Card.Subtitle>
+                                            Statistics
+                                        </Card.Subtitle>
+                                        {job.statistics ?
+                                            <ListGroup>
+                                                <ListGroupItem>
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <p><b>Average Duration of each Job: </b></p>
+                                                        <p>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</p>
+                                                    </div>
+                                                </ListGroupItem>
+                                                <ListGroupItem>
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <p><b>Min TIme: </b></p>
+                                                        <p>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</p>
+                                                    </div>
+                                                </ListGroupItem>
+                                                <ListGroupItem>
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <p><b>Max TIme: </b></p>
+                                                        <p>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</p>
+                                                    </div>
+                                                </ListGroupItem>
+                                                <ListGroupItem>
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <p><b>Average Latency: </b></p>
+                                                        <p>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</p>
+                                                    </div>
+                                                </ListGroupItem>
+                                            </ListGroup>
+                                        :
+                                            null
+                                        }
+                                    </ListGroup.Item>
+                                )
                             })}
                         </ListGroup>
                     </Card.Body>
