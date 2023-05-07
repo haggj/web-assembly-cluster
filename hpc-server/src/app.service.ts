@@ -51,6 +51,7 @@ export class AppService {
   // stop Job, if its running
   stopJob(job: string): string {
     if (this.runningJob && this.runningJob.wasmPath === job) {
+      this.runningJob.status = 'pending'
       this.runningJob = undefined
       console.log(`Stop Job ${job}...`)
       return `Stopped Job ${job}`
@@ -64,6 +65,8 @@ export class AppService {
       if (this.allJobDefinitions[i].wasmPath === jobInput) {
         console.log(`Reset Job ${jobInput}...`)
         this.allJobDefinitions[i] = new PasswordCracker(this.jobInitParams)
+
+        // reset running job if needed
         if (this.runningJob && this.runningJob.wasmPath === this.allJobDefinitions[i].wasmPath) {
           this.runningJob = this.allJobDefinitions[i]
         }
