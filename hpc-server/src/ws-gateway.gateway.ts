@@ -111,17 +111,15 @@ export class WsGatewayGateway {
   }
 
   // Send next Job
-  sendJob(client: any): boolean {
+  sendJob(client: any) {
     const job = this.appService.getNextJob()
     if (job) {
       console.log(`send Job ${job.id} to ${client.id}`)
       client.emit('runwasm', job)
-      for (let m of this.allMasters) {
-        m.emit('jobInfo', this.appService.getJobsInfo())
-      }
-      return true
     }
-    return false
+    for (let m of this.allMasters) {
+      m.emit('jobInfo', this.appService.getJobsInfo())
+    }
   }
 
   @SubscribeMessage('resultwasm')

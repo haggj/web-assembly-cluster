@@ -21,7 +21,9 @@ export const MasterDashboard = () => {
     async function onJobInfo(message) {
         console.log(message)
         // if job is done, remove it from running job
-        jobs.map(job => {if (job.job_status === 'done') setRunningJob(undefined)})
+        message.map(job => {
+            if (job.job_status === 'done') setRunningJob(undefined)
+        })
         setJobs(message)
     }
 
@@ -183,8 +185,20 @@ export const MasterDashboard = () => {
                                                 </ListGroupItem>
                                                 <ListGroupItem>
                                                     <div className="d-flex justify-content-between align-items-center">
+                                                        <p><b>Average computation time per password: </b></p>
+                                                        <p>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</p>
+                                                    </div>
+                                                </ListGroupItem>
+                                                <ListGroupItem>
+                                                    <div className="d-flex justify-content-between align-items-center">
                                                         <p><b>Average Latency: </b></p>
                                                         <p>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</p>
+                                                    </div>
+                                                </ListGroupItem>
+                                                <ListGroupItem>
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <p><b>Average Latency per password: </b></p>
+                                                        <p>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</p>
                                                     </div>
                                                 </ListGroupItem>
                                             </ListGroup>
@@ -195,25 +209,24 @@ export const MasterDashboard = () => {
                                 )
                             })}
                         </ListGroup>
-                    </Card.Body>
-                    <Card.Title>
-                        Clients
-                    </Card.Title>
-                    <Card.Body>
-                        <Card.Subtitle>
-                            Currently Connected: {clients.length}
-                        </Card.Subtitle>
-                        <ListGroup> 
-                        {clients.map((client) => {
-                            return (
-                                <ListGroup.Item>
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div className="fw-bold">{client}</div>
-                                    </div>
-                                </ListGroup.Item>)
-                        })}
-                        </ListGroup>
-                        Client Info here
+                        </Card.Body>
+                            <Card.Title>
+                                Clients
+                            </Card.Title>
+                        <Card.Body>
+                            <Card.Subtitle>
+                                Currently Connected: {clients.length}
+                            </Card.Subtitle>
+                                <ListGroup>
+                                {clients.map((client) => {
+                                    return (
+                                        <ListGroup.Item>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <div className="fw-bold">{client}</div>
+                                            </div>
+                                        </ListGroup.Item>)
+                                })}
+                                </ListGroup>
                     </Card.Body>
                 </Card.Body>
             </Card>
