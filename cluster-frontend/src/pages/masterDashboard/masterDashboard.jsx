@@ -8,6 +8,12 @@ import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
 import { on } from 'events';
 import Table from "react-bootstrap/Table";
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import Col from 'react-bootstrap/Col';
+import Nav from 'react-bootstrap/Nav';
+import Row from 'react-bootstrap/Row';
+
 
 export const MasterDashboard = () => {
     const emptyInit =     {
@@ -24,6 +30,7 @@ export const MasterDashboard = () => {
     const [showToastSuccess, setShowToastSuccess] = useState(false)
     const [tostTextErrror, setToastTextError] = useState('')
     const [showToastError, setShowToastError] = useState(false)
+    const [activeTab, setActiveTab] = useState(0)
     const [showModal, setShowModal] = useState(true)
     const [formData, setFormData] = useState(emptyInit);
     let socket = null;
@@ -141,17 +148,6 @@ export const MasterDashboard = () => {
     const handleFormSubmit = async (event) => {
         event.preventDefault();
         toggleShowModal()
-        const result = await axios.post(window.location.origin + '/api/jobs/newJob', {'job': job});
-        if (result.status === 201) {
-            console.log('successfully started job')
-            setRunningJob(job)
-            setToastTextSuccess(`Successfully started job ${job}`)
-            setShowToastSuccess(true)
-        } else {
-            console.log(`Server returned ${result.status}`)
-            setToastTextError(`Could not START job ${job}! Server returned status ${result.status}`)
-            setShowToastError(true)
-        }
     }
 
     useEffect(() => {
@@ -170,141 +166,199 @@ export const MasterDashboard = () => {
 
     }
 
-    return (
-        <div style={{margin: '30px'}}>
-            <Card style={{maxWidth: '700px'}}>
+    function JobComponent (props) {
+        let job = props.job;
+        return (
+            <>
+                <p>
+                    Status: <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
+                </p>
+                {job.result?
+                    <p>
+                        Result:{" "}
+                        <span style={monospace}>
+                    {job.result}
+                    </span>
+                    </p>
+                    :
+                    null
+                }
+
+                <div style={{marginTop: '15px' }}>
+                    <ProgressBar>
+                        <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
+                        <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
+                    </ProgressBar>
+                    <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                    <ButtonToolbar>
+                        <Button variant="primary" onClick={() => startJob(job.name)}>Start</Button>
+                        <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
+                        <Button variant="outline-dark" style={{marginLeft: '10px'}} onClick={() => resetJob(job.name)}>Reset</Button>
+                    </ButtonToolbar>
+                </div>
+                <Card.Subtitle style={{ marginTop: '20px', marginBottom: '20px' }}>
+                    <h5>
+                        Job Parameters
+                    </h5>
+                </Card.Subtitle>
+
+                <Table bordered hover>
+                    <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Batch Size:</td>
+                        <td>{job.batchSize}</td>
+                    </tr>
+                    <tr>
+                        <td>Timeout:</td>
+                        <td>{parseFloat(job.timeout).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                        <td>WASM Path:</td>
+                        <td>{job.wasmPath}</td>
+                    </tr>
+                    </tbody>
+
+                </Table>
+
+
+                {job.statistics.job_avg_duration ?
+                    <>
+
+                    <Card.Subtitle style={{ marginTop: '20px', marginBottom: '20px' }}>
+                        <h5>
+                            Statistics
+                        </h5>
+                    </Card.Subtitle>
+                    <Table bordered hover>
+                        <thead>
+                        <tr>
+                            <th>Statistic</th>
+                            <th>Value</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Average Duration of each Job:</td>
+                            <td>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Minimum Time: </td>
+                            <td>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum Time:</td>
+                            <td>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Average computation time per password:</td>
+                            <td>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Average latency:</td>
+                            <td>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Average latency per password:</td>
+                            <td>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</td>
+                        </tr>
+                        </tbody>
+                    </Table>
+                    </>
+                    :
+                    null
+                }
+                </>
+        )
+    }
+
+    const AllJobsCard = () => {
+        return (
+            <Card>
+            <Card.Body>
+                <Card.Title>
+                    <h3>
+                        Available Jobs
+                    </h3>
+                </Card.Title>
+                <div style={{marginTop: '30px', marginBottom: '30px'}}>
+                    Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
+                </div>
+
+
+                <Tabs
+                    id="uncontrolled-tab-example"
+                    className="mb-3"
+                    variant="pills"
+                    activeKey={activeTab}
+                    onSelect={(key) => {setActiveTab(key);}}
+                >
+                    {jobs.map((job, index) => {
+                        return (
+                                <Tab eventKey={index} title={job.name} style={{ border: '1px solid #ccc', borderRadius: '5px', padding:'10px', marginTop: '-15px'}}>
+                                        <JobComponent job={job} />
+                                </Tab>
+                            )
+                    })}
+                </Tabs>
+            </Card.Body>
+            </Card>
+        )
+    }
+
+    function ClientCard () {
+        return (
+            <Card>
                 <Card.Body>
                     <Card.Title>
-                        Master Dashboard
+                        <h3>
+                            Connected Clients
+                        </h3>
                     </Card.Title>
-                    <Card.Title>
-                        Jobs
-                    </Card.Title>
-                    <Card.Body>
-                        <Card.Title>
-                            Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
-                        </Card.Title>
-                        <ListGroup style={{ marginTop: '20px' }}>
-                            {jobs.map((job) => {
-                                return (
-                                    <ListGroup.Item>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <div className="fw-bold">{job.name}</div>
-                                            <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
-                                            <ButtonToolbar>
-                                                <Button variant="primary" onClick={() => startJob(job.name)}>Start</Button>
-                                                <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
-                                                <Button variant="outline-dark" style={{marginLeft: '30px'}} onClick={() => resetJob(job.name)}>Reset</Button>
-                                            </ButtonToolbar>
-                                        </div>
-                                        <Card.Subtitle style={{ marginTop: '20px' }}>
-                                            Job Params
-                                        </Card.Subtitle>
-                                        <ListGroup>
-                                            <ListGroupItem>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <p><b>Batch Size: </b></p>
-                                                    <p>{parseFloat(job.batchSize).toFixed(2)} ms</p>
-                                                </div>
-                                            </ListGroupItem>
-                                            <ListGroupItem>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <p><b>Timeout: </b></p>
-                                                    <p>{parseFloat(job.timeout).toFixed(2)} ms</p>
-                                                </div>
-                                            </ListGroupItem>
-                                            <ListGroupItem>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <p><b>WASM Path: </b></p>
-                                                    <p>{job.wasmPath} ms</p>
-                                                </div>
-                                            </ListGroupItem>
-                                            <ListGroupItem>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <p>{job.hash}</p>
-                                                    <p><b>{job.result}</b></p>
-                                                </div>
-                                            </ListGroupItem>
-                                        </ListGroup>
-                                        <div style={{marginTop: '15px' }}>
-                                            <ProgressBar>
-                                                <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
-                                                <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
-                                            </ProgressBar>
-                                            <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
-                                        </div>
-                                        {job.statistics.job_avg_duration ?
-                                            <Table bordered hover>
-                                                <thead>
-                                                <tr>
-                                                    <th>Statistic</th>
-                                                    <th>Value</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr>
-                                                    <td>Average Duration of each Job:</td>
-                                                    <td>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Minimum Time: </td>
-                                                    <td>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Maximum Time:</td>
-                                                    <td>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Average computation time per password:</td>
-                                                    <td>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Average latency:</td>
-                                                    <td>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Average latency per password:</td>
-                                                    <td>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</td>
-                                                </tr>
-                                                </tbody>
-                                            </Table>
-                                            :
-                                            null
-                                        }
-                                    </ListGroup.Item>
-                                )
-                            })}
-                        </ListGroup>
-                        </Card.Body>
-                            <Card.Title>
-                                Clients
-                            </Card.Title>
-                        <Card.Body>
-                            <Card.Subtitle>
-                                Currently Connected: {clients.length}
-                            </Card.Subtitle>
-
-                            <Table bordered hover>
-                                <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>ID</th>
-                                    <th>Info</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {clients.map((client, idx) => (
-                                    <tr>
-                                        <td>{idx + 1}</td>
-                                        <td ><span style={monospace}>{client.id}</span></td>
-                                        <td>{client.details}</td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </Table>
-                    </Card.Body>
+                    <div style={{marginTop: '20px', marginBottom: '20px'}}>
+                        Currently Connected: {clients.length}
+                    </div>
+                    <Table bordered hover>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>Info</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {clients.map((client, idx) => (
+                            <tr>
+                                <td>{idx + 1}</td>
+                                <td ><span style={monospace}>{client.id}</span></td>
+                                <td>{client.details}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </Table>
                 </Card.Body>
             </Card>
+
+        )
+    }
+
+
+
+    return (
+        <div style={{margin: '30px'}}>
+            <h1>Master Dashboard</h1>
+            <div className="row">
+                <div className="col-sm-6"><AllJobsCard /></div>
+                <div className="col-sm-6"><ClientCard /></div>
+            </div>
+
             <Link to="/">Home</Link>
             <ToastContainer className="position-static">
                 <Toast show={showToastSuccess} onClose={toggleShowToastSuccess}>
