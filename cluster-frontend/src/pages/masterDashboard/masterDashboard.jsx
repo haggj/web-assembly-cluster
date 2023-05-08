@@ -193,51 +193,40 @@ export const MasterDashboard = () => {
                                             </ProgressBar>
                                             <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
                                         </div>
-                                        <Card.Subtitle>
-                                            Statistics
-                                        </Card.Subtitle>
-                                        {job.statistics ?
-                                            <ListGroup>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average Duration of each Job: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Min TIme: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Max TIme: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average computation time per password: </b></p>
-                                                        <p>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average Latency: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average Latency per password: </b></p>
-                                                        <p>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                            </ListGroup>
-                                        :
-                                            null
-                                        }
+                                        <Table bordered hover>
+                                            <thead>
+                                            <tr>
+                                                <th>Statistic</th>
+                                                <th>Value</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Average Duration of each Job:</td>
+                                                    <td>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</td>
+                                                </tr>
+                                            <tr>
+                                                <td>Minimum Time: </td>
+                                                <td>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Maximum Time:</td>
+                                                <td>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</td>
+                                            </tr>
+                                                <tr>
+                                                    <td>Average computation time per password:</td>
+                                                    <td>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Average latency:</td>
+                                                    <td>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Average latency per password:</td>
+                                                    <td>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
                                     </ListGroup.Item>
                                 )
                             })}
