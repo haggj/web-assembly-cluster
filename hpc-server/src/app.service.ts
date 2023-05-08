@@ -5,16 +5,24 @@ const PasswordCracker = require('../../job/passwordcracker');
 export class AppService {
   allJobDefinitions: any[] = []
   runningJob = undefined
-  jobInitParams = {
-    batchSize: 10,
-    timeout: 5000,
-    hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
-    name: 'passwordcracker',
-  }
+  jobInitParams = [
+    {
+      batchSize: 10,
+      timeout: 5000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'passwordcracker_10',
+    },
+    {
+      batchSize: 20,
+      timeout: 5000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'passwordcracker_20',
+    }
+  ]
 
   constructor() {
     // Adding PasswordCracker Job
-    this.allJobDefinitions.push(new PasswordCracker(this.jobInitParams));
+    this.jobInitParams.map(init => this.allJobDefinitions.push(new PasswordCracker(init)))
   }
 
   getHello(): string {
@@ -26,7 +34,7 @@ export class AppService {
     if (this.allJobDefinitions.length > 0) {
       const output: string[] = []
       for (let job of this.allJobDefinitions) {
-        output.push(job.wasmPath)
+        output.push(job.name)
       }
       return output
     }
@@ -39,7 +47,7 @@ export class AppService {
   runJob(jobInput: string): string {
     // find and set job object
     for (let job of this.allJobDefinitions) {
-      if (job.wasmPath === jobInput) {
+      if (job.name === jobInput) {
         console.log(`Start Job ${jobInput}...`)
         // update job status if found
         this.runningJob = job
@@ -52,7 +60,7 @@ export class AppService {
 
   // stop Job, if its running
   stopJob(job: string): string {
-    if (this.runningJob && this.runningJob.wasmPath === job) {
+    if (this.runningJob && this.runningJob.name === job) {
       this.runningJob.status = 'pending'
       //this.runningJob = undefined
       this.runningJob.stopped = true
@@ -65,12 +73,12 @@ export class AppService {
 
   resetJob(jobInput: string): boolean {
     for (let i = 0; i < this.allJobDefinitions.length; i++) {
-      if (this.allJobDefinitions[i].wasmPath === jobInput) {
+      if (this.allJobDefinitions[i].name === jobInput) {
         console.log(`Reset Job ${jobInput}...`)
-        this.allJobDefinitions[i] = new PasswordCracker(this.jobInitParams)
+        this.allJobDefinitions[i] = new PasswordCracker(this.jobInitParams.filter(init => init.name === jobInput)[0])
 
         // reset running job if needed
-        if (this.runningJob && this.runningJob.wasmPath === this.allJobDefinitions[i].wasmPath) {
+        if (this.runningJob && this.runningJob.name === this.allJobDefinitions[i].name) {
           this.runningJob = this.allJobDefinitions[i]
         }
         return true

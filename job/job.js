@@ -8,6 +8,7 @@ class Job {
         this.statistics = NaN;
         this.name = initParams.name;
         this.result = NaN;
+        this.hash = NaN;
     }
   
     createJobs() {
@@ -63,7 +64,10 @@ class Job {
     info() {
       this.get_statistics();
       return {
+        name: this.name,
         wasmPath: this.wasmPath,
+        batchSize: this.batchSize,
+        timeout: this.timeout,
         ids: this.jobs.map(job => job.id),
         status: this.jobs.map(job => job.status),
         done: this.jobs.filter(job => job.status === 'done').length,
@@ -71,7 +75,9 @@ class Job {
         pending: this.jobs.filter(job => job.status === 'pending').length,
         total: this.jobs.length,
         job_status: this.status,
-        statistics: this.statistics
+        statistics: this.statistics,
+        result: this.result,
+        hash: this.hash,
       };
     }
 

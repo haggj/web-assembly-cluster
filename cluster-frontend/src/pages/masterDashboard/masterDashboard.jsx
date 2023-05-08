@@ -3,12 +3,26 @@ import axios from "axios";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
-import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer} from "react-bootstrap";
+import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer, Modal, Form} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
 import { on } from 'events';
+import Table from "react-bootstrap/Table";
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import Col from 'react-bootstrap/Col';
+import Nav from 'react-bootstrap/Nav';
+import Row from 'react-bootstrap/Row';
+
 
 export const MasterDashboard = () => {
+    const emptyInit =     {
+        batchSize: '',
+        timeout: '',
+        hash: '',
+        name: '',
+    }
+
     const [jobs, setJobs] = useState([]);
     const [clients, setClients] = useState([]);
     const [runningJob, setRunningJob] = useState(undefined)
@@ -16,6 +30,9 @@ export const MasterDashboard = () => {
     const [showToastSuccess, setShowToastSuccess] = useState(false)
     const [tostTextErrror, setToastTextError] = useState('')
     const [showToastError, setShowToastError] = useState(false)
+    const [activeTab, setActiveTab] = useState(0)
+    const [showModal, setShowModal] = useState(true)
+    const [formData, setFormData] = useState(emptyInit);
     let socket = null;
 
     async function onJobInfo(message) {
@@ -118,6 +135,20 @@ export const MasterDashboard = () => {
 
     const toggleShowToastSuccess = () => setShowToastSuccess(!showToastSuccess)
     const toggleShowToastError = () => setShowToastError(!showToastError)
+    const toggleShowModal = () => setShowModal(!showModal)
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    }
+
+    const handleFormSubmit = async (event) => {
+        event.preventDefault();
+        toggleShowModal()
+    }
 
     useEffect(() => {
         fetchJobs();
@@ -126,110 +157,208 @@ export const MasterDashboard = () => {
         }
     }, [])
 
-    return (
-        <div style={{margin: '30px'}}>
-            <Card style={{maxWidth: '700px'}}>
+    const monospace = {
+        fontFamily: 'monospace',
+        backgroundColor: '#eee',
+        borderRadius: '5px',
+        display: 'inline-block',
+        padding: '8px'
+
+    }
+
+    function JobComponent (props) {
+        let job = props.job;
+        return (
+            <>
+                <p>
+                    Status: <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
+                </p>
+                {job.result?
+                    <p>
+                        Result:{" "}
+                        <span style={monospace}>
+                    {job.result}
+                    </span>
+                    </p>
+                    :
+                    null
+                }
+
+                <div style={{marginTop: '15px' }}>
+                    <ProgressBar>
+                        <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
+                        <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
+                    </ProgressBar>
+                    <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                    <ButtonToolbar>
+                        <Button variant="primary" onClick={() => startJob(job.name)}>Start</Button>
+                        <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
+                        <Button variant="outline-dark" style={{marginLeft: '10px'}} onClick={() => resetJob(job.name)}>Reset</Button>
+                    </ButtonToolbar>
+                </div>
+                <Card.Subtitle style={{ marginTop: '20px', marginBottom: '20px' }}>
+                    <h5>
+                        Job Parameters
+                    </h5>
+                </Card.Subtitle>
+
+                <Table bordered hover>
+                    <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Batch Size:</td>
+                        <td>{job.batchSize}</td>
+                    </tr>
+                    <tr>
+                        <td>Timeout:</td>
+                        <td>{parseFloat(job.timeout).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                        <td>WASM Path:</td>
+                        <td>{job.wasmPath}</td>
+                    </tr>
+                    </tbody>
+
+                </Table>
+
+
+                {job.statistics.job_avg_duration ?
+                    <>
+
+                    <Card.Subtitle style={{ marginTop: '20px', marginBottom: '20px' }}>
+                        <h5>
+                            Statistics
+                        </h5>
+                    </Card.Subtitle>
+                    <Table bordered hover>
+                        <thead>
+                        <tr>
+                            <th>Statistic</th>
+                            <th>Value</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Average Duration of each Job:</td>
+                            <td>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Minimum Time: </td>
+                            <td>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum Time:</td>
+                            <td>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Average computation time per password:</td>
+                            <td>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Average latency:</td>
+                            <td>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</td>
+                        </tr>
+                        <tr>
+                            <td>Average latency per password:</td>
+                            <td>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</td>
+                        </tr>
+                        </tbody>
+                    </Table>
+                    </>
+                    :
+                    null
+                }
+                </>
+        )
+    }
+
+    const AllJobsCard = () => {
+        return (
+            <Card>
+            <Card.Body>
+                <Card.Title>
+                    <h3>
+                        Available Jobs
+                    </h3>
+                </Card.Title>
+                <div style={{marginTop: '30px', marginBottom: '30px'}}>
+                    Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
+                </div>
+
+
+                <Tabs
+                    id="uncontrolled-tab-example"
+                    className="mb-3"
+                    variant="pills"
+                    activeKey={activeTab}
+                    onSelect={(key) => {setActiveTab(key);}}
+                >
+                    {jobs.map((job, index) => {
+                        return (
+                                <Tab eventKey={index} title={job.name} style={{ border: '1px solid #ccc', borderRadius: '5px', padding:'10px', marginTop: '-15px'}}>
+                                        <JobComponent job={job} />
+                                </Tab>
+                            )
+                    })}
+                </Tabs>
+            </Card.Body>
+            </Card>
+        )
+    }
+
+    function ClientCard () {
+        return (
+            <Card>
                 <Card.Body>
                     <Card.Title>
-                        Master Dashboard
+                        <h3>
+                            Connected Clients
+                        </h3>
                     </Card.Title>
-                    <Card.Title>
-                        Jobs
-                    </Card.Title>
-                    <Card.Body>
-                        <Card.Title>
-                            Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
-                        </Card.Title>
-                        <ListGroup style={{ marginTop: '20px' }}>
-                            {jobs.map((job) => {
-                                return (
-                                    <ListGroup.Item>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <div className="fw-bold">{job.wasmPath}</div>
-                                            <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
-                                            <ButtonToolbar>
-                                                <Button variant="primary" onClick={() => startJob(job.wasmPath)}>Start</Button>
-                                                <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.wasmPath)}>Stop</Button>
-                                                <Button variant="outline-dark" style={{marginLeft: '30px'}} onClick={() => resetJob(job.wasmPath)}>Reset</Button>
-                                            </ButtonToolbar>
-                                        </div>
-                                        <div style={{marginTop: '15px' }}>
-                                            <ProgressBar>
-                                                <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
-                                                <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
-                                            </ProgressBar>
-                                            <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
-                                        </div>
-                                        <Card.Subtitle>
-                                            Statistics
-                                        </Card.Subtitle>
-                                        {job.statistics ?
-                                            <ListGroup>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average Duration of each Job: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Min TIme: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Max TIme: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average computation time per password: </b></p>
-                                                        <p>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average Latency: </b></p>
-                                                        <p>{parseFloat(job.statistics.job_avg_latency).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                                <ListGroupItem>
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <p><b>Average Latency per password: </b></p>
-                                                        <p>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</p>
-                                                    </div>
-                                                </ListGroupItem>
-                                            </ListGroup>
-                                        :
-                                            null
-                                        }
-                                    </ListGroup.Item>
-                                )
-                            })}
-                        </ListGroup>
-                        </Card.Body>
-                            <Card.Title>
-                                Clients
-                            </Card.Title>
-                        <Card.Body>
-                            <Card.Subtitle>
-                                Currently Connected: {clients.length}
-                            </Card.Subtitle>
-                                <ListGroup>
-                                {clients.map((client) => {
-                                    return (
-                                        <ListGroup.Item>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <div className="fw-bold">{client}</div>
-                                            </div>
-                                        </ListGroup.Item>)
-                                })}
-                                </ListGroup>
-                    </Card.Body>
+                    <div style={{marginTop: '20px', marginBottom: '20px'}}>
+                        Currently Connected: {clients.length}
+                    </div>
+                    <Table bordered hover>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>Info</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {clients.map((client, idx) => (
+                            <tr>
+                                <td>{idx + 1}</td>
+                                <td ><span style={monospace}>{client.id}</span></td>
+                                <td>{client.details}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </Table>
                 </Card.Body>
             </Card>
+
+        )
+    }
+
+
+
+    return (
+        <div style={{margin: '30px'}}>
+            <h1>Master Dashboard</h1>
+            <div className="row">
+                <div className="col-sm-6"><AllJobsCard /></div>
+                <div className="col-sm-6"><ClientCard /></div>
+            </div>
+
             <Link to="/">Home</Link>
             <ToastContainer className="position-static">
                 <Toast show={showToastSuccess} onClose={toggleShowToastSuccess}>
@@ -251,6 +380,54 @@ export const MasterDashboard = () => {
                     <Toast.Body>{tostTextErrror}</Toast.Body>
                 </Toast>
             </ToastContainer>
+            <Modal show={showModal} onHide={toggleShowModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create new Job</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleFormSubmit}>
+                        <Form.Group controlId="formName">
+                            <Form.Label>Job name</Form.Label>
+                            <Form.Control
+                                placeholder="Job name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formHash">
+                            <Form.Label>Hash</Form.Label>
+                            <Form.Control
+                                placeholder="Hash value"
+                                name="hash"
+                                value={formData.hash}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formBashSize">
+                            <Form.Label>Bash size</Form.Label>
+                            <Form.Control
+                                placeholder="Batch size"
+                                name="batchSize"
+                                value={formData.batchSize}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formTimeout">
+                            <Form.Label>Timeout</Form.Label>
+                            <Form.Control
+                                placeholder="Timeout"
+                                name="timeout"
+                                value={formData.timeout}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Button style={{ marginTop: '20px' }} variant="primary" type="submit">
+                            Create new Job
+                        </Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 };

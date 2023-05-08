@@ -29,19 +29,18 @@ export class WsGatewayGateway {
     return 'Hello world!';
   }
 
-  @SubscribeMessage('client_info')
+  @SubscribeMessage('client_details')
   clientInfo(client: any, payload: any) {
     this.allClients.map(c => {
-      if (c.id === client.id)
-        c.our_info = payload;
-    });
-  }
+      if (c.id === client.id){
+        c.client_details = payload;
+      }
 
-  @SubscribeMessage('manual_disconnect')
-  manualDisconnect(client: any, payload: any) {
-    console.log("manual disconnect")
-    client.disconnect();
-    this.handleDisconnect(client);
+    });
+
+    for (let m of this.allMasters) {
+      m.emit('clientInfo', this.returnAllClientIDs())
+    }
   }
 
   handleDisconnect(client: any) {
@@ -96,7 +95,7 @@ export class WsGatewayGateway {
     for (let w of this.allWorkers) {
       console.log('Worker: ' + JSON.stringify(w.id))
     }
-    return this.allWorkers.map(c => c.id)
+    return this.allWorkers.map(c => { return {details: c.client_details, id: c.id}})
   }
 
   broadcastWasm(path: string) {
@@ -134,6 +133,7 @@ export class WsGatewayGateway {
     }
     for (let m of this.allMasters) {
       m.emit('jobInfo', this.appService.getJobsInfo())
+      console.log(this.appService.getJobsInfo())
     }
   }
 

@@ -23,6 +23,7 @@ export class AppController {
 
   @Post('/jobs')
   runJob(@Body() data): string {
+    // TODO: USE JOP NAME AS INPUT
     const wasmPath = this.appService.runJob(data.job)
     if (wasmPath) {
       this.appGateway.broadcastWasm(wasmPath)
@@ -34,8 +35,6 @@ export class AppController {
 
   @Delete('/jobs/:name')
   stopJob(@Param() params: any): string {
-    console.log('Stop job - controller')
-    console.log(params.name)
     return this.appService.stopJob(params.name)
   }
 

@@ -43,12 +43,15 @@ class PasswordCracker extends Job {
     }
 
     check_term(result) {
-        if (result.result.length > 0) {
-            this.status = 'done';
-            this.result = result.result;
-            return true;
+        // Ignore incoming job results if solution was found
+        if (!this.result) {
+            if (result.result.length > 0) {
+                this.status = 'done';
+                this.result = result.result;
+                return true;
+            }
+            this.result = NaN;
         }
-        this.result = NaN;
     }
 
     createJobs() {
