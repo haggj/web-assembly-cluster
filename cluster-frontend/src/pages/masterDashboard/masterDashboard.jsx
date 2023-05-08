@@ -246,6 +246,10 @@ export const MasterDashboard = () => {
                         <td>WASM Path:</td>
                         <td>{job.wasmPath}</td>
                     </tr>
+                    <tr>
+                        <td>Hash:</td>
+                        <td>{job.hash}</td>
+                    </tr>
                     </tbody>
 
                 </Table>
