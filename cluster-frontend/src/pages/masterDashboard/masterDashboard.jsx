@@ -37,10 +37,20 @@ export const MasterDashboard = () => {
 
     async function onJobInfo(message) {
         console.log(message)
-        // if job is done, remove it from running job
+
+        // Assumption: Only one job can run at the same time
+        let runningJob = false;
         message.map(job => {
-            if (job.job_status === 'done') setRunningJob(undefined)
+            if (job.job_status === 'running') {
+                runningJob = true;
+                setRunningJob(job.name)
+            }
         })
+
+        // Set runningJob to undefined if no job is running
+        if (!runningJob){
+            setRunningJob(undefined)
+        }
         setJobs(message)
     }
 
