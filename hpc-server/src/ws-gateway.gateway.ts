@@ -29,6 +29,21 @@ export class WsGatewayGateway {
     return 'Hello world!';
   }
 
+  @SubscribeMessage('client_info')
+  clientInfo(client: any, payload: any) {
+    this.allClients.map(c => {
+      if (c.id === client.id)
+        c.our_info = payload;
+    });
+  }
+
+  @SubscribeMessage('manual_disconnect')
+  manualDisconnect(client: any, payload: any) {
+    console.log("manual disconnect")
+    client.disconnect();
+    this.handleDisconnect(client);
+  }
+
   handleDisconnect(client: any) {
     console.log(`Client disconnected: ${client.id}`);
     this.allClients = this.allClients.filter(c => c.id != client.id)

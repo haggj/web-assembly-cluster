@@ -125,7 +125,7 @@ export const Client = () => {
     const cleanupFunction = () => {
         if (socket !== null){
             console.log("Disconnect socket because unloading...")
-            socket.disconnect()
+            socket.emit("manual_disconnect");
         }
     }
 
