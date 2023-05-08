@@ -47,7 +47,7 @@ export class AppController {
 
   @Post('/jobs/new')
   createNewJob(@Body() data) {
-    this.appService.createNewJob(data.job)
+    this.appService.createNewJob(data)
   }
 
   @Header('Content-type', 'application/wasm')

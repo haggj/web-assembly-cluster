@@ -125,13 +125,20 @@ export class AppService {
   createNewJob(initParam: any) {
     console.log(initParam)
     const { batchSize, timeout, hash, name } = initParam
-    if (batchSize && typeof batchSize === 'number'
-        && timeout && typeof timeout === 'number'
+    if (batchSize && typeof Number(batchSize) === 'number'
+        && timeout && typeof Number(timeout) === 'number'
         && hash && typeof hash === 'string'
         && name && typeof name === 'string'
     ){
-      this.jobInitParams.push(initParam)
-      this.allJobDefinitions.push(new PasswordCracker(initParam))
+      const newInitParam = {
+        batchSize: Number(batchSize),
+        timeout: Number(timeout),
+        name: name,
+        hash: hash
+      }
+      this.jobInitParams.push(newInitParam)
+      this.allJobDefinitions.push(new PasswordCracker(newInitParam))
+      console.log('success')
     }
   }
 }

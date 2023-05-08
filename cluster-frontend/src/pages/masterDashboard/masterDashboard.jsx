@@ -31,7 +31,7 @@ export const MasterDashboard = () => {
     const [tostTextErrror, setToastTextError] = useState('')
     const [showToastError, setShowToastError] = useState(false)
     const [activeTab, setActiveTab] = useState(0)
-    const [showModal, setShowModal] = useState(true)
+    const [showModal, setShowModal] = useState(false)
     const [formData, setFormData] = useState(emptyInit);
     let socket = null;
 
@@ -156,8 +156,20 @@ export const MasterDashboard = () => {
     }
 
     const handleFormSubmit = async (event) => {
-        event.preventDefault();
+        event.preventDefault()
+        const result = await axios.post(window.location.origin + '/api//jobs/new', formData);
+        if (result.status === 201) {
+            console.log('successfully created job')
+            setToastTextSuccess(`Successfully created job`)
+            setShowToastSuccess(true)
+        } else {
+            console.log(`Server returned ${result.status}`)
+            setToastTextError(`Could not CREATE job! Server returned status ${result.status}`)
+            setShowToastError(true)
+        }
         toggleShowModal()
+        setFormData(emptyInit)
+        fetchJobs()
     }
 
     useEffect(() => {
@@ -298,8 +310,12 @@ export const MasterDashboard = () => {
                         Available Jobs
                     </h3>
                 </Card.Title>
-                <div style={{marginTop: '30px', marginBottom: '30px'}}>
-                    Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
+
+                <div style={{marginTop: '30px', display: 'flex', justifyContent: 'space-between'}}>
+                    <div>
+                        Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
+                    </div>
+                    <Button variant="outline-success" onClick={toggleShowModal}>Add Job</Button>
                 </div>
 
 
