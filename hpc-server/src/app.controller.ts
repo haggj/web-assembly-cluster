@@ -23,7 +23,6 @@ export class AppController {
 
   @Post('/jobs')
   runJob(@Body() data): string {
-    // TODO: USE JOP NAME AS INPUT
     const wasmPath = this.appService.runJob(data.job)
     if (wasmPath) {
       this.appGateway.broadcastWasm(wasmPath)
@@ -44,6 +43,11 @@ export class AppController {
       return `Reset Job ${data.job}`
     }
     return `ERROR: Job ${data.job} was not found!`
+  }
+
+  @Post('/jobs/new')
+  createNewJob(@Body() data) {
+    this.appService.createNewJob(data.job)
   }
 
   @Header('Content-type', 'application/wasm')

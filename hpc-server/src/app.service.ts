@@ -120,4 +120,18 @@ export class AppService {
     }
     return allInfos
   }
+
+  // create a new job with incoming InitParams
+  createNewJob(initParam: any) {
+    console.log(initParam)
+    const { batchSize, timeout, hash, name } = initParam
+    if (batchSize && typeof batchSize === 'number'
+        && timeout && typeof timeout === 'number'
+        && hash && typeof hash === 'string'
+        && name && typeof name === 'string'
+    ){
+      this.jobInitParams.push(initParam)
+      this.allJobDefinitions.push(new PasswordCracker(initParam))
+    }
+  }
 }
