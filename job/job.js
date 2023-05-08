@@ -8,6 +8,7 @@ class Job {
         this.statistics = NaN;
         this.name = initParams.name;
         this.result = NaN;
+        this.hash = NaN;
     }
   
     createJobs() {
@@ -74,7 +75,9 @@ class Job {
         pending: this.jobs.filter(job => job.status === 'pending').length,
         total: this.jobs.length,
         job_status: this.status,
-        statistics: this.statistics
+        statistics: this.statistics,
+        result: this.result,
+        hash: this.hash,
       };
     }
 

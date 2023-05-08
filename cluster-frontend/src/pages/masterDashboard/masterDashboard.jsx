@@ -185,6 +185,12 @@ export const MasterDashboard = () => {
                                                     <p>{job.wasmPath} ms</p>
                                                 </div>
                                             </ListGroupItem>
+                                            <ListGroupItem>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <p>{job.hash}</p>
+                                                    <p><b>{job.result}</b></p>
+                                                </div>
+                                            </ListGroupItem>
                                         </ListGroup>
                                         <div style={{marginTop: '15px' }}>
                                             <ProgressBar>
