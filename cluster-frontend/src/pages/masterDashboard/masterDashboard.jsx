@@ -3,13 +3,20 @@ import axios from "axios";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
-import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer} from "react-bootstrap";
+import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer, Modal, Form} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
 import { on } from 'events';
 import Table from "react-bootstrap/Table";
 
 export const MasterDashboard = () => {
+    const emptyInit =     {
+        batchSize: '',
+        timeout: '',
+        hash: '',
+        name: '',
+    }
+
     const [jobs, setJobs] = useState([]);
     const [clients, setClients] = useState([]);
     const [runningJob, setRunningJob] = useState(undefined)
@@ -17,6 +24,8 @@ export const MasterDashboard = () => {
     const [showToastSuccess, setShowToastSuccess] = useState(false)
     const [tostTextErrror, setToastTextError] = useState('')
     const [showToastError, setShowToastError] = useState(false)
+    const [showModal, setShowModal] = useState(true)
+    const [formData, setFormData] = useState(emptyInit);
     let socket = null;
 
     async function onJobInfo(message) {
@@ -119,6 +128,31 @@ export const MasterDashboard = () => {
 
     const toggleShowToastSuccess = () => setShowToastSuccess(!showToastSuccess)
     const toggleShowToastError = () => setShowToastError(!showToastError)
+    const toggleShowModal = () => setShowModal(!showModal)
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    }
+
+    const handleFormSubmit = async (event) => {
+        event.preventDefault();
+        toggleShowModal()
+        const result = await axios.post(window.location.origin + '/api/jobs/newJob', {'job': job});
+        if (result.status === 201) {
+            console.log('successfully started job')
+            setRunningJob(job)
+            setToastTextSuccess(`Successfully started job ${job}`)
+            setShowToastSuccess(true)
+        } else {
+            console.log(`Server returned ${result.status}`)
+            setToastTextError(`Could not START job ${job}! Server returned status ${result.status}`)
+            setShowToastError(true)
+        }
+    }
 
     useEffect(() => {
         fetchJobs();
@@ -292,6 +326,54 @@ export const MasterDashboard = () => {
                     <Toast.Body>{tostTextErrror}</Toast.Body>
                 </Toast>
             </ToastContainer>
+            <Modal show={showModal} onHide={toggleShowModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create new Job</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleFormSubmit}>
+                        <Form.Group controlId="formName">
+                            <Form.Label>Job name</Form.Label>
+                            <Form.Control
+                                placeholder="Job name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formHash">
+                            <Form.Label>Hash</Form.Label>
+                            <Form.Control
+                                placeholder="Hash value"
+                                name="hash"
+                                value={formData.hash}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formBashSize">
+                            <Form.Label>Bash size</Form.Label>
+                            <Form.Control
+                                placeholder="Batch size"
+                                name="batchSize"
+                                value={formData.batchSize}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formTimeout">
+                            <Form.Label>Timeout</Form.Label>
+                            <Form.Control
+                                placeholder="Timeout"
+                                name="timeout"
+                                value={formData.timeout}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Button style={{ marginTop: '20px' }} variant="primary" type="submit">
+                            Create new Job
+                        </Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 };
