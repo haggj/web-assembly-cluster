@@ -88,8 +88,12 @@ export const Client = () => {
         worker.postMessage({eventType: "CALL", eventData: job.data});
     }
 
+
     const openWebSocket = () => {
         // open Websocket
+
+        // only rely on websocket to avoid that socket stays open during tab refresh:
+        // https://stackoverflow.com/questions/41924713/node-js-socket-io-page-refresh-multiple-connections
         const sock = io(window.location.origin, {path: '/api/ws'});
         sock.on("connect_error", (err) => {
             console.log(`connect_error due to ${err.message}`);
@@ -110,12 +114,20 @@ export const Client = () => {
 
 
     useEffect(() => {
+        window.addEventListener("beforeunload", cleanupFunction);
         setOs(platform.os)
         setBrowser(platform.name)
         if (socket === null) {
             openWebSocket();
         }
     }, []);
+
+    const cleanupFunction = () => {
+        if (socket !== null){
+            console.log("Disconnect socket because unloading...")
+            socket.disconnect()
+        }
+    }
 
 
     const monospace = {
