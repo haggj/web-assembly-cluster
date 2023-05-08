@@ -6,6 +6,7 @@ class Job {
         this.status = 'pending';
         this.statistics = NaN;
         this.name = initParams.name;
+        this.result = NaN;
     }
   
     createJobs() {
