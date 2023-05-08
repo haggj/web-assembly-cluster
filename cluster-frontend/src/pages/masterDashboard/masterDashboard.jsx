@@ -163,26 +163,26 @@ export const MasterDashboard = () => {
                                                 <Button variant="outline-dark" style={{marginLeft: '30px'}} onClick={() => resetJob(job.name)}>Reset</Button>
                                             </ButtonToolbar>
                                         </div>
-                                        <Card.Subtitle>
+                                        <Card.Subtitle style={{ marginTop: '20px' }}>
                                             Job Params
                                         </Card.Subtitle>
                                         <ListGroup>
                                             <ListGroupItem>
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <p><b>Batch Size: </b></p>
-                                                    <p>{parseFloat(job.statistics.batchSize).toFixed(2)} ms</p>
+                                                    <p>{parseFloat(job.batchSize).toFixed(2)} ms</p>
                                                 </div>
                                             </ListGroupItem>
                                             <ListGroupItem>
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <p><b>Timeout: </b></p>
-                                                    <p>{parseFloat(job.statistics.timeout).toFixed(2)} ms</p>
+                                                    <p>{parseFloat(job.timeout).toFixed(2)} ms</p>
                                                 </div>
                                             </ListGroupItem>
                                             <ListGroupItem>
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <p><b>WASM Path: </b></p>
-                                                    <p>{parseFloat(job.statistics.wasmPath).toFixed(2)} ms</p>
+                                                    <p>{job.wasmPath} ms</p>
                                                 </div>
                                             </ListGroupItem>
                                         </ListGroup>

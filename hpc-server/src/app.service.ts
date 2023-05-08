@@ -22,7 +22,7 @@ export class AppService {
 
   constructor() {
     // Adding PasswordCracker Job
-    this.allJobDefinitions.push(new PasswordCracker(this.jobInitParams));
+    this.jobInitParams.map(init => this.allJobDefinitions.push(new PasswordCracker(init)))
   }
 
   getHello(): string {

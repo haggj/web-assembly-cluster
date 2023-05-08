@@ -65,6 +65,8 @@ class Job {
       return {
         name: this.name,
         wasmPath: this.wasmPath,
+        batchSize: this.batchSize,
+        timeout: this.timeout,
         ids: this.jobs.map(job => job.id),
         status: this.jobs.map(job => job.status),
         done: this.jobs.filter(job => job.status === 'done').length,
