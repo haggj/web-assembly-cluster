@@ -2,6 +2,7 @@ class Job {
     constructor(initParams) {      
         this.wasmPath = NaN;
         this.timeout = initParams.timeout;
+        this.batchSize = initParams.batchSize;
         this.createJobs();
         this.status = 'pending';
         this.statistics = NaN;
