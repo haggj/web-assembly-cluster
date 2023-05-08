@@ -43,7 +43,6 @@ class PasswordCracker extends Job {
     }
 
     check_term(result) {
-        console.log("RESULT IS: " + JSON.stringify(result));
         if (result.result.length > 0) {
             this.status = 'done';
             return true;
@@ -65,6 +64,7 @@ class PasswordCracker extends Job {
     }
 
     get_statistics() {
+        console.log("Getting statistics");
         let jobs_done = this.jobs.filter(job => job.status === 'done');
         let durations = [];
         let durations_latency = [];
@@ -86,6 +86,8 @@ class PasswordCracker extends Job {
             pwd_avg_duration: job_avg_duration / this.batchSize,
             pwd_avg_latency: job_avg_latency / this.batchSize,
         };
+        console.log("Statistics:");
+        console.log(this.statistics);
         return this.statistics;
     }
 

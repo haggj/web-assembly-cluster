@@ -59,6 +59,7 @@ class Job {
     }
   
     info() {
+      this.get_statistics();
       return {
         wasmPath: this.wasmPath,
         ids: this.jobs.map(job => job.id),
