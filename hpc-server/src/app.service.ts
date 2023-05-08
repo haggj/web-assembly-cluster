@@ -43,6 +43,7 @@ export class AppService {
         console.log(`Start Job ${jobInput}...`)
         // update job status if found
         this.runningJob = job
+        this.runningJob.stopped = false
         return job.wasmPath
       }
     }
@@ -53,7 +54,8 @@ export class AppService {
   stopJob(job: string): string {
     if (this.runningJob && this.runningJob.wasmPath === job) {
       this.runningJob.status = 'pending'
-      this.runningJob = undefined
+      //this.runningJob = undefined
+      this.runningJob.stopped = true
       console.log(`Stop Job ${job}...`)
       return `Stopped Job ${job}`
     } else {
@@ -86,7 +88,7 @@ export class AppService {
 
   // get next job of running JobDefinition
   getNextJob(): any {
-    if (this.runningJob) {
+    if (this.runningJob.stopped === false) {
       return this.runningJob.getJob()
     } else {
       return null
