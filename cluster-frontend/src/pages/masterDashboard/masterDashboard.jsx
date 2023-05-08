@@ -145,14 +145,37 @@ export const MasterDashboard = () => {
                                 return (
                                     <ListGroup.Item>
                                         <div className="d-flex justify-content-between align-items-center">
-                                            <div className="fw-bold">{job.wasmPath}</div>
+                                            <div className="fw-bold">{job.name}</div>
                                             <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
                                             <ButtonToolbar>
-                                                <Button variant="primary" onClick={() => startJob(job.wasmPath)}>Start</Button>
-                                                <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.wasmPath)}>Stop</Button>
-                                                <Button variant="outline-dark" style={{marginLeft: '30px'}} onClick={() => resetJob(job.wasmPath)}>Reset</Button>
+                                                <Button variant="primary" onClick={() => startJob(job.name)}>Start</Button>
+                                                <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
+                                                <Button variant="outline-dark" style={{marginLeft: '30px'}} onClick={() => resetJob(job.name)}>Reset</Button>
                                             </ButtonToolbar>
                                         </div>
+                                        <Card.Subtitle>
+                                            Job Params
+                                        </Card.Subtitle>
+                                        <ListGroup>
+                                            <ListGroupItem>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <p><b>Batch Size: </b></p>
+                                                    <p>{parseFloat(job.statistics.batchSize).toFixed(2)} ms</p>
+                                                </div>
+                                            </ListGroupItem>
+                                            <ListGroupItem>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <p><b>Timeout: </b></p>
+                                                    <p>{parseFloat(job.statistics.timeout).toFixed(2)} ms</p>
+                                                </div>
+                                            </ListGroupItem>
+                                            <ListGroupItem>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <p><b>WASM Path: </b></p>
+                                                    <p>{parseFloat(job.statistics.wasmPath).toFixed(2)} ms</p>
+                                                </div>
+                                            </ListGroupItem>
+                                        </ListGroup>
                                         <div style={{marginTop: '15px' }}>
                                             <ProgressBar>
                                                 <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />

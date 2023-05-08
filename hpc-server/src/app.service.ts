@@ -5,12 +5,20 @@ const PasswordCracker = require('../../job/passwordcracker');
 export class AppService {
   allJobDefinitions: any[] = []
   runningJob = undefined
-  jobInitParams = {
-    batchSize: 10,
-    timeout: 5000,
-    hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
-    name: 'passwordcracker',
-  }
+  jobInitParams = [
+    {
+      batchSize: 10,
+      timeout: 5000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'passwordcracker_10',
+    },
+    {
+      batchSize: 20,
+      timeout: 5000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'passwordcracker_20',
+    }
+  ]
 
   constructor() {
     // Adding PasswordCracker Job

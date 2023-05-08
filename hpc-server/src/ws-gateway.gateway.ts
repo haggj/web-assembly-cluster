@@ -134,6 +134,7 @@ export class WsGatewayGateway {
     }
     for (let m of this.allMasters) {
       m.emit('jobInfo', this.appService.getJobsInfo())
+      console.log(this.appService.getJobsInfo())
     }
   }
 
