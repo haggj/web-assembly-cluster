@@ -8,7 +8,7 @@ export class AppService {
   jobInitParams = {
     batchSize: 10,
     timeout: 5000,
-    hash: '5f4dcc3b5aa765d61d8327deb882cf99',
+    hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
     name: 'passwordcracker',
   }
 
