@@ -92,8 +92,6 @@ export const Client = () => {
     const openWebSocket = () => {
         // open Websocket
 
-        // only rely on websocket to avoid that socket stays open during tab refresh:
-        // https://stackoverflow.com/questions/41924713/node-js-socket-io-page-refresh-multiple-connections
         const sock = io(window.location.origin, {path: '/api/ws'});
         sock.on("connect_error", (err) => {
             console.log(`connect_error due to ${err.message}`);
@@ -106,7 +104,8 @@ export const Client = () => {
             }
             console.log("WebSocket connection established")
             socket = sock;
-            setIsConnected(true)
+            setIsConnected(true);
+            socket.emit("client_details", platform.name + "@" + platform.os)
         });
         sock.on('loadwasm', onLoadWasm)
         sock.on('runwasm', onRunWasm)
@@ -125,7 +124,7 @@ export const Client = () => {
     const cleanupFunction = () => {
         if (socket !== null){
             console.log("Disconnect socket because unloading...")
-            socket.emit("manual_disconnect");
+            socket.disconnect("manual_disconnect");
         }
     }
 

@@ -7,6 +7,7 @@ import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer}
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
 import { on } from 'events';
+import Table from "react-bootstrap/Table";
 
 export const MasterDashboard = () => {
     const [jobs, setJobs] = useState([]);
@@ -126,6 +127,15 @@ export const MasterDashboard = () => {
         }
     }, [])
 
+    const monospace = {
+        fontFamily: 'monospace',
+        backgroundColor: '#eee',
+        borderRadius: '5px',
+        display: 'inline-block',
+        padding: '8px'
+
+    }
+
     return (
         <div style={{margin: '30px'}}>
             <Card style={{maxWidth: '700px'}}>
@@ -240,16 +250,25 @@ export const MasterDashboard = () => {
                             <Card.Subtitle>
                                 Currently Connected: {clients.length}
                             </Card.Subtitle>
-                                <ListGroup>
-                                {clients.map((client) => {
-                                    return (
-                                        <ListGroup.Item>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <div className="fw-bold">{client}</div>
-                                            </div>
-                                        </ListGroup.Item>)
-                                })}
-                                </ListGroup>
+
+                            <Table bordered hover>
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ID</th>
+                                    <th>Info</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {clients.map((client, idx) => (
+                                    <tr>
+                                        <td>{idx + 1}</td>
+                                        <td ><span style={monospace}>{client.id}</span></td>
+                                        <td>{client.details}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </Table>
                     </Card.Body>
                 </Card.Body>
             </Card>
