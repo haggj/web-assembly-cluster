@@ -193,26 +193,27 @@ export const MasterDashboard = () => {
                                             </ProgressBar>
                                             <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
                                         </div>
-                                        <Table bordered hover>
-                                            <thead>
-                                            <tr>
-                                                <th>Statistic</th>
-                                                <th>Value</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
+                                        {job.statistics.job_avg_duration ?
+                                            <Table bordered hover>
+                                                <thead>
+                                                <tr>
+                                                    <th>Statistic</th>
+                                                    <th>Value</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
                                                 <tr>
                                                     <td>Average Duration of each Job:</td>
                                                     <td>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</td>
                                                 </tr>
-                                            <tr>
-                                                <td>Minimum Time: </td>
-                                                <td>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Maximum Time:</td>
-                                                <td>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</td>
-                                            </tr>
+                                                <tr>
+                                                    <td>Minimum Time: </td>
+                                                    <td>{parseFloat(job.statistics.job_min_duration).toFixed(2)} ms</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Maximum Time:</td>
+                                                    <td>{parseFloat(job.statistics.job_max_duration).toFixed(2)} ms</td>
+                                                </tr>
                                                 <tr>
                                                     <td>Average computation time per password:</td>
                                                     <td>{parseFloat(job.statistics.pwd_avg_duration).toFixed(2)} ms</td>
@@ -225,8 +226,11 @@ export const MasterDashboard = () => {
                                                     <td>Average latency per password:</td>
                                                     <td>{parseFloat(job.statistics.pwd_avg_latency).toFixed(2)} ms</td>
                                                 </tr>
-                                            </tbody>
-                                        </Table>
+                                                </tbody>
+                                            </Table>
+                                            :
+                                            null
+                                        }
                                     </ListGroup.Item>
                                 )
                             })}
