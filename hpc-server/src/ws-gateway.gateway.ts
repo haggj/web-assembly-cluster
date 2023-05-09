@@ -11,8 +11,8 @@ import {AppService} from "./app.service";
 @WebSocketGateway({
   path: '/api/ws',
   cors: { origin: '*' },
-  pingInterval: 120000,
-  pingTimeout: 120000,
+  pingInterval: 3000  ,
+  pingTimeout: 1000,
 })
 export class WsGatewayGateway {
 
