@@ -69,7 +69,7 @@ export const Client = () => {
         worker = new Worker('api/wasm_worker.js');
         worker.addEventListener('message', workerEventListener)
         let data = {
-            root: window.location.origin + "/api/wasm/",
+            root: global.config.backend + "/api/wasm/",
             path: wasm_path
         }
         worker.postMessage({eventType: "INITIALISE", eventData: data});
@@ -92,7 +92,7 @@ export const Client = () => {
     const openWebSocket = () => {
         // open Websocket
 
-        const sock = io(window.location.origin, {path: '/api/ws'});
+        const sock = io(global.config.backend, {path: '/api/ws'});
         sock.on("connect_error", (err) => {
             console.log(`connect_error due to ${err.message}`);
             setIsConnected(false)

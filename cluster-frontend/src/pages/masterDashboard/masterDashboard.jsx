@@ -61,7 +61,8 @@ export const MasterDashboard = () => {
 
     const openWebSocket = () => {
         // open Websocket
-        const sock = io(window.location.origin, {path: '/api/ws'});
+        console.log("GLOBAL BACKEND: " + global.config.backend )
+        const sock = io(global.config.backend, {path: '/api/ws'});
         sock.on('jobInfo', onJobInfo)
         sock.on('clientInfo', onClientInfo)
         socket = sock;
@@ -70,7 +71,7 @@ export const MasterDashboard = () => {
     };
 
     const fetchJobs = async () => {
-        const result = await axios.get(window.location.origin + '/api/jobs');
+        const result = await axios.get(global.config.backend + '/api/jobs');
         setJobs(result.data);
     }
 
@@ -81,7 +82,7 @@ export const MasterDashboard = () => {
             setShowToastError(true)
         } else {
             console.log(`starting job ${job}...`)
-            const result = await axios.post(window.location.origin + '/api/jobs', {'job': job});
+            const result = await axios.post(global.config.backend + '/api/jobs', {'job': job});
             if (result.status === 201) {
                 console.log('successfully started job')
                 setRunningJob(job)
@@ -99,7 +100,7 @@ export const MasterDashboard = () => {
         if (runningJob) {
             if (job === runningJob) {
                 console.log(`stopping job ${job}...`)
-                const result = await axios.delete(window.location.origin + `/api/jobs/${job}`);
+                const result = await axios.delete(global.config.backend + `/api/jobs/${job}`);
                 if (result.status === 200) {
                     console.log('successfully stopped job')
                     setRunningJob(undefined)
@@ -126,7 +127,7 @@ export const MasterDashboard = () => {
     const resetJob = async (job) => {
         if (runningJob !== job) {
             console.log(`reset job ${job}...`)
-            const result = await axios.post(window.location.origin + '/api/reset', {'job': job});
+            const result = await axios.post(global.config.backend + '/api/reset', {'job': job});
             if (result.status === 201) {
                 console.log('successfully reset job')
                 setToastTextSuccess(`Successfully reset job ${job}`)
@@ -157,7 +158,7 @@ export const MasterDashboard = () => {
 
     const handleFormSubmit = async (event) => {
         event.preventDefault()
-        const result = await axios.post(window.location.origin + '/api//jobs/new', formData);
+        const result = await axios.post(global.config.backend + '/api/jobs/new', formData);
         if (result.status === 201) {
             console.log('successfully created job')
             setToastTextSuccess(`Successfully created job`)
