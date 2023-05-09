@@ -141,7 +141,7 @@ export const Client = () => {
     return (
         <div style={{margin: '30px'}}>
 
-            <Card style={{maxWidth: '800px'}}>
+            <Card className="shadow" style={{maxWidth: '800px'}}>
                 <Card.Body>
 
                     <Card.Title><h2>HPC Client</h2></Card.Title>
@@ -244,7 +244,7 @@ export const Client = () => {
             </Card>
 
 
-            <Link to="/">Home</Link>
+            <Link style={{maginTop: "50px"}} to="/">Home</Link>
 
         </div>
     );

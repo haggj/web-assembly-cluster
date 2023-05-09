@@ -188,13 +188,25 @@ export const MasterDashboard = () => {
 
     }
 
+    function jobCanReset(job){
+        return job.job_status === "pending" || job.job_status === "done"
+    }
+    function jobCanStop(job){
+        return job.job_status === "running"
+    }
+
+    function jobCanStart(job){
+        return job.job_status === "pending"
+    }
+
     function JobComponent (props) {
         let job = props.job;
         return (
-            <>
-                <p>
+         <>
+            <div className="d-flex justify-content-between align-items-center">
+                <div>
                     Status: <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
-                </p>
+                </div>
                 {job.result?
                     <p>
                         Result:{" "}
@@ -206,18 +218,21 @@ export const MasterDashboard = () => {
                     null
                 }
 
+            </div>
+
                 <div style={{marginTop: '15px' }}>
-                    <ProgressBar>
-                        <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
-                        <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
-                    </ProgressBar>
-                    <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
+                        <ProgressBar>
+                            <ProgressBar label={job.done} striped variant="success" min={0} max={job.total} now={job.done} key={1} />
+                            <ProgressBar animated label={job.running} variant="info" min={0} max={job.total} now={job.running} key={2} />
+                        </ProgressBar>
+                        <p style={{ marginLeft: '45%' }}>{job.done} / {job.total}</p>
+
                 </div>
                 <div className="d-flex justify-content-between align-items-center">
                     <ButtonToolbar>
-                        <Button variant="primary" onClick={() => startJob(job.name)}>Start</Button>
-                        <Button variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
-                        <Button variant="outline-dark" style={{marginLeft: '10px'}} onClick={() => resetJob(job.name)}>Reset</Button>
+                        <Button disabled={!jobCanStart(job)} variant="primary" onClick={() => startJob(job.name)}>Start</Button>
+                        <Button disabled={!jobCanStop(job)} variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
+                        <Button disabled={!jobCanReset(job)} variant="outline-dark" style={{marginLeft: '10px'}} onClick={() => resetJob(job.name)}>Reset</Button>
                     </ButtonToolbar>
                 </div>
                 <Card.Subtitle style={{ marginTop: '20px', marginBottom: '20px' }}>
@@ -307,33 +322,31 @@ export const MasterDashboard = () => {
 
     const AllJobsCard = () => {
         return (
-            <Card>
+            <Card className={"shadow"}>
             <Card.Body>
-                <Card.Title>
+
+                <div style={{display: 'flex', justifyContent: 'space-between'}}>
                     <h3>
                         Available Jobs
                     </h3>
-                </Card.Title>
-
-                <div style={{marginTop: '30px', display: 'flex', justifyContent: 'space-between'}}>
-                    <div>
-                        Currently Running: {runningJob ? <Badge bg="info"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
-                    </div>
                     <Button variant="outline-success" onClick={toggleShowModal}>Add Job</Button>
+                </div>
+
+                <div style={{ marginTop: '30px', marginBottom: '30px'}}>
+                    Currently Running: {runningJob ? <Badge bg="primary"> {runningJob} </Badge> : <Badge bg="secondary"> No running Job </Badge>}
                 </div>
 
 
                 <Tabs
                     id="uncontrolled-tab-example"
-                    className="mb-3"
-                    variant="pills"
                     activeKey={activeTab}
                     onSelect={(key) => {setActiveTab(key);}}
+                    justify
                 >
                     {jobs.map((job, index) => {
                         return (
-                                <Tab eventKey={index} title={job.name} style={{ border: '1px solid #ccc', borderRadius: '5px', padding:'10px', marginTop: '-15px'}}>
-                                        <JobComponent job={job} />
+                                <Tab eventKey={index} title={job.name} style={{margin: "30px"}}>
+                                        <JobComponent  job={job} />
                                 </Tab>
                             )
                     })}
@@ -345,7 +358,7 @@ export const MasterDashboard = () => {
 
     function ClientCard () {
         return (
-            <Card>
+            <Card className={"shadow"}>
                 <Card.Body>
                     <Card.Title>
                         <h3>
@@ -390,20 +403,18 @@ export const MasterDashboard = () => {
             </div>
 
             <Link to="/">Home</Link>
-            <ToastContainer className="position-static">
-                <Toast show={showToastSuccess} onClose={toggleShowToastSuccess}>
+            <ToastContainer className="p-5" position={"bottom-end"}>
+                <Toast autohide delay={3000}  show={showToastSuccess} onClose={toggleShowToastSuccess}>
                     <Toast.Header>
-                        <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
                         <strong className="me-auto">Job Information</strong>
                         <Badge bg='success'>Information</Badge>
                     </Toast.Header>
                     <Toast.Body>{tostTextSuccess}</Toast.Body>
                 </Toast>
             </ToastContainer>
-            <ToastContainer>
-                <Toast show={showToastError} onClose={toggleShowToastError}>
+            <ToastContainer className="p-5" position={"bottom-end"}>
+                <Toast autohide delay={3000} show={showToastError} onClose={toggleShowToastError}>
                     <Toast.Header>
-                        <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
                         <strong className="me-auto">Job Information</strong>
                         <Badge bg='warning'>Error</Badge>
                     </Toast.Header>
