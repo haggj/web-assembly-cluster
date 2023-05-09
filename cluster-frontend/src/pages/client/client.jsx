@@ -66,7 +66,7 @@ export const Client = () => {
 
     async function onLoadWasm(wasm_path) {
         // Initialize a new webworker with the requested go wasm file
-        worker = new Worker(global.config.backend + 'api/wasm_worker.js');
+        worker = new Worker('wasm_worker.js');
         worker.addEventListener('message', workerEventListener)
         let data = {
             root: global.config.backend + "/api/wasm/",
