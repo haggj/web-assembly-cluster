@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import Card from "react-bootstrap/Card";
-import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
-import {Badge, ButtonToolbar, ListGroupItem, ProgressBar, Toast, ToastContainer, Modal, Form} from "react-bootstrap";
+import {Badge, ButtonToolbar, ProgressBar, Toast, ToastContainer, Modal, Form} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {io} from "socket.io-client";
-import { on } from 'events';
 import Table from "react-bootstrap/Table";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import Col from 'react-bootstrap/Col';
-import Nav from 'react-bootstrap/Nav';
-import Row from 'react-bootstrap/Row';
 
 
 export const MasterDashboard = () => {
@@ -203,7 +198,7 @@ export const MasterDashboard = () => {
     function JobComponent (props) {
         let job = props.job;
         return (
-         <>
+         <div>
             <div className="d-flex justify-content-between align-items-center">
                 <div>
                     Status: <Badge pill bg={(job.job_status === 'pending') ? 'secondary' : (job.job_status === 'done') ? 'success' : 'primary'}>{job.job_status}</Badge>
@@ -317,7 +312,7 @@ export const MasterDashboard = () => {
                     :
                     null
                 }
-                </>
+                </div>
         )
     }
 

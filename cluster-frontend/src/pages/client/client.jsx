@@ -33,7 +33,7 @@ export const Client = () => {
 
     const workerEventListener = function (event) {
 
-        const {eventType, eventData, eventId} = event.data;
+        const {eventType, eventData} = event.data;
 
         if (eventType === "INITIALISED") {
             // Webworker is initialized, inform server that client is ready
@@ -161,7 +161,7 @@ export const Client = () => {
                             {isConnected ?
                                 <>
                                     Online
-                                    <img src={require('./connected.gif')} width="40" height="40"
+                                    <img src={require('./connected.gif')} alt='connection' width="40" height="40"
                                          style={{marginLeft: '0px'}}/>
                                 </>
                                 :
@@ -174,7 +174,7 @@ export const Client = () => {
                             {"Job status  :   "}&emsp;&emsp;&emsp;&emsp;&emsp;
                             {jobIsRunning ?
                                 <>
-                                    <img src={require('./computing.gif')} width="35" height="35"
+                                    <img src={require('./computing.gif')} alt='runningState' width="35" height="35"
                                          style={{marginRight: '15px'}}/>
                                     Running {loadedWasm}{" - "}
                                     <span style={monospace}> {latestJobName} </span>
@@ -196,7 +196,7 @@ export const Client = () => {
                                         {finishedJobs.length}
                                     </Accordion.Header>
                                     <Accordion.Body>
-                                        {finishedJobs.length == 0 ?
+                                        {finishedJobs.length === 0 ?
                                             <>
                                                 Your client has no finished jobs yet.
                                             </>
