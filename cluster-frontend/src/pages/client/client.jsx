@@ -105,7 +105,7 @@ export const Client = () => {
             console.log("WebSocket connection established")
             socket = sock;
             setIsConnected(true);
-            socket.emit("client_details", platform.name + "@" + platform.os)
+            socket.emit("isWorkerSocket", platform.name + "@" + platform.os)
         });
         sock.on('loadwasm', onLoadWasm)
         sock.on('runwasm', onRunWasm)
@@ -119,12 +119,13 @@ export const Client = () => {
         if (socket === null) {
             openWebSocket();
         }
+        return cleanupFunction
     }, []);
 
     const cleanupFunction = () => {
         if (socket !== null){
             console.log("Disconnect socket because unloading...")
-            socket.disconnect("manual_disconnect");
+            socket.disconnect();
         }
     }
 
@@ -144,13 +145,13 @@ export const Client = () => {
             <Card className="shadow" style={{maxWidth: '800px'}}>
                 <Card.Body>
 
-                    <Card.Title><h2>HPC Client</h2></Card.Title>
+                    <Card.Title><h2>HPC Worker</h2></Card.Title>
                     <Card.Subtitle>Your device is part of the WebAssembly cluster and is ready to execute
                         jobs.</Card.Subtitle>
 
                     <ListGroup style={{marginTop: '20px'}}>
                         <ListGroup.Item active>
-                            Status of your client
+                            Status of your worker
                         </ListGroup.Item>
                         <ListGroup.Item>
                             Client detection:&emsp;&emsp;&emsp;

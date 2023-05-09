@@ -362,7 +362,7 @@ export const MasterDashboard = () => {
                 <Card.Body>
                     <Card.Title>
                         <h3>
-                            Connected Clients
+                            Connected Workers
                         </h3>
                     </Card.Title>
                     <div style={{marginTop: '20px', marginBottom: '20px'}}>
