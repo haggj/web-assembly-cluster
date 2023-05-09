@@ -2,3 +2,4 @@
 /cluster-frontend/node_modules/
 */__pycache__/*
 .idea/
+/cluster-frontend/build/
