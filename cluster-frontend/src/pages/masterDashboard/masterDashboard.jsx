@@ -283,6 +283,10 @@ export const MasterDashboard = () => {
                         </thead>
                         <tbody>
                         <tr>
+                            <td>Total run time:</td>
+                            <td>{parseFloat(job.statistics.total_time / 1000).toFixed(2)} s</td>
+                        </tr>
+                        <tr>
                             <td>Average Duration of each Job:</td>
                             <td>{parseFloat(job.statistics.job_avg_duration).toFixed(2)} ms</td>
                         </tr>

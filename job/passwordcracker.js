@@ -90,6 +90,7 @@ class PasswordCracker extends Job {
             job_avg_latency: job_avg_latency,
             pwd_avg_duration: job_avg_duration / this.batchSize,
             pwd_avg_latency: job_avg_latency / this.batchSize,
+            total_time: durations.reduce((a, b) => a + b, 0)
         };
         console.log("Statistics:");
         console.log(this.statistics);
