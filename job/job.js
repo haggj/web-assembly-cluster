@@ -11,6 +11,7 @@ class Job {
         this.hash = NaN;
         this.start_time = NaN;
         this.end_time = NaN;
+        this.done_counter = 0;
     }
 
     setStartTime() {
@@ -46,9 +47,6 @@ class Job {
               return job;
             }
           }
-
-          this.status = 'done';
-          this.end_time = Date.now()
         }
 
         return null;
@@ -63,6 +61,12 @@ class Job {
         this.jobs[job_idx].result = result;
         this.check_term(result);
         this.jobs[job_idx].end = now;
+        this.done_counter += 1;
+
+        if (this.done_counter === this.jobs.length) {
+            this.status = 'done';
+            this.end_time = Date.now()
+        }
     }
 
     check_term(result) {
