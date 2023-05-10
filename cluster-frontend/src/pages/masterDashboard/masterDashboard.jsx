@@ -216,6 +216,10 @@ export const MasterDashboard = () => {
         return job.job_status === "pending"
     }
 
+    function formatDate(date){
+        return date.getHours() + ":" + date.getMinutes()+  ":" + date.getSeconds();
+    }
+
     function JobComponent (props) {
         let job = props.job;
         return (
@@ -305,7 +309,19 @@ export const MasterDashboard = () => {
                         </thead>
                         <tbody>
                         <tr>
-                            <td>Total run time:</td>
+                            <td>Started:</td>
+                            <td>{formatDate(new Date(job.statistics.start_time))}</td>
+                        </tr>
+                        <tr>
+                            <td>Finished:</td>
+                            <td>{job.statistics.end_time ? formatDate(new Date(job.statistics.end_time)) : ""}</td>
+                        </tr>
+                        <tr>
+                            <td>Total duration:</td>
+                            <td>{job.statistics.end_time ? parseFloat((new Date(job.statistics.end_time).getTime() - new Date(job.statistics.start_time).getTime()) / 1000).toFixed(2) + "s": ""}</td>
+                        </tr>
+                        <tr>
+                            <td>Summed job time:</td>
                             <td>{parseFloat(job.statistics.total_time / 1000).toFixed(2)} s</td>
                         </tr>
                         <tr>
