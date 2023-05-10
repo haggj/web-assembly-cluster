@@ -17,7 +17,7 @@ class PasswordCracker extends Job {
 
     readRockYouFile() {
         try {
-            const data = fs.readFileSync('rockyou_small.txt', 'utf8');
+            const data = fs.readFileSync('rockyou_100.txt', 'utf8');
             this.lines = data.split('\n');
         } catch (err) {
             console.error(err);
