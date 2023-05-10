@@ -49,6 +49,7 @@ class PasswordCracker extends Job {
             if (result.result.length > 0) {
                 this.status = 'done';
                 this.result = result.result;
+                this.end_time = Date.now()
                 return true;
             }
             this.result = NaN;
@@ -91,7 +92,9 @@ class PasswordCracker extends Job {
             job_avg_latency: job_avg_latency,
             pwd_avg_duration: job_avg_duration / this.batchSize,
             pwd_avg_latency: job_avg_latency / this.batchSize,
-            total_time: durations.reduce((a, b) => a + b, 0)
+            total_time: durations.reduce((a, b) => a + b, 0),
+            start_time: this.start_time,
+            end_time: this.end_time
         };
         //console.log("Statistics:");
         //console.log(this.statistics);

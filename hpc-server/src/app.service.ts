@@ -63,6 +63,7 @@ export class AppService {
         // update job status if found
         this.runningJob = job
         this.runningJob.stopped = false
+        this.runningJob.setStartTime()
         return job.wasmPath
       }
     }

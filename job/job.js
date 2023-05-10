@@ -9,6 +9,14 @@ class Job {
         this.name = initParams.name;
         this.result = NaN;
         this.hash = NaN;
+        this.start_time = NaN;
+        this.end_time = NaN;
+    }
+
+    setStartTime() {
+        if (!this.start_time) {
+            this.start_time = Date.now()
+        }
     }
   
     createJobs() {
@@ -40,6 +48,7 @@ class Job {
           }
 
           this.status = 'done';
+          this.end_time = Date.now()
         }
 
         return null;
