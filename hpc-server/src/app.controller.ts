@@ -45,6 +45,11 @@ export class AppController {
     return `ERROR: Job ${data.job} was not found!`
   }
 
+  @Delete('/jobs/delete/:name')
+  deleteJob(@Param() params: any): boolean {
+    return this.appService.deleteJob(params.name)
+  }
+
   @Post('/jobs/new')
   createNewJob(@Body() data) {
     this.appService.createNewJob(data)

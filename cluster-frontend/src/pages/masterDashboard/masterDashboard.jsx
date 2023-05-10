@@ -140,6 +140,26 @@ export const MasterDashboard = () => {
         fetchJobs()
     }
 
+    const deleteJob = async (job) => {
+        if (runningJob !== job) {
+            console.log(`delete job ${job}...`)
+            const result = await axios.delete(global.config.backend + `/api/jobs/delete/${job}`);
+            if (result.status === 200) {
+                console.log('successfully delete job')
+                setToastTextSuccess(`Successfully reset job ${job}`)
+                setShowToastSuccess(true)
+            } else {
+                console.log(`Server returned ${result.status}`)
+                setToastTextError(`Cant delete job! Server returned status ${result.status}`)
+                setShowToastError(true)
+            }
+        } else {
+            setToastTextError(`Cant delete job ${job}!\n It is currently running.`)
+            setShowToastError(true)
+        }
+        fetchJobs()
+    }
+
     const toggleShowToastSuccess = () => setShowToastSuccess(!showToastSuccess)
     const toggleShowToastError = () => setShowToastError(!showToastError)
     const toggleShowModal = () => setShowModal(!showModal)
@@ -231,6 +251,7 @@ export const MasterDashboard = () => {
                         <Button disabled={!jobCanStop(job)} variant="danger" style={{marginLeft: '10px'}} onClick={() => stopJob(job.name)}>Stop</Button>
                         <Button disabled={!jobCanReset(job)} variant="outline-dark" style={{marginLeft: '10px'}} onClick={() => resetJob(job.name)}>Reset</Button>
                     </ButtonToolbar>
+                    <Button disabled={!jobCanReset(job)} variant="outline-danger" onClick={() => deleteJob(job.name)}>Delete Job</Button>
                 </div>
                 <Card.Subtitle style={{ marginTop: '20px', marginBottom: '20px' }}>
                     <h5>

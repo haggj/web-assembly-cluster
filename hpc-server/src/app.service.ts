@@ -34,7 +34,6 @@ export class AppService {
     // Adding PasswordCracker Job
     this.jobInitParams.map(init => this.allJobDefinitions.push(new PasswordCracker(init)))
     this.allJobDefinitions.map(job => console.log(job.info()))
-    console.log('TEST: ' + this.allJobDefinitions.length)
   }
 
   getHello(): string {
@@ -97,6 +96,16 @@ export class AppService {
       }
     }
     return false
+  }
+
+  // delete a job
+  deleteJob(jobName: string): boolean {
+    if (this.runningJob && this.runningJob.name === jobName) {
+      this.runningJob = undefined;
+    }
+    this.allJobDefinitions = this.allJobDefinitions.filter(job => job.name !== jobName)
+    this.jobInitParams = this.jobInitParams.filter(init => init.name !== jobName)
+    return true
   }
 
   // handle job result

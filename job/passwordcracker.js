@@ -4,8 +4,6 @@ const fs = require('fs');
 
 class PasswordCracker extends Job {
     constructor(initParams) {
-        console.log('PARAMS')
-        console.log(initParams)
         super(initParams);
         this.batchSize = initParams.batchSize;
         this.lines = [];
@@ -20,7 +18,6 @@ class PasswordCracker extends Job {
 
     readRockYouFile() {
         try {
-            console.log('FILE PATH: ' + this.filePath)
             const data = fs.readFileSync(this.filePath, 'utf8');
             this.lines = data.split('\n');
         } catch (err) {
@@ -73,7 +70,7 @@ class PasswordCracker extends Job {
     }
 
     get_statistics() {
-        console.log("Getting statistics");
+        //console.log("Getting statistics");
         let jobs_done = this.jobs.filter(job => job.status === 'done');
         let durations = [];
         let durations_latency = [];
@@ -81,9 +78,9 @@ class PasswordCracker extends Job {
             const job = jobs_done[i];
             durations.push(job.end - job.start);
             durations_latency.push(job.end - job.start - job.result.duration);
-            console.log(job.result.duration);
+            //console.log(job.result.duration);
         }
-        console.log(durations_latency);
+        //console.log(durations_latency);
         let job_avg_duration = durations.reduce((a, b) => a + b, 0) / durations.length;
         let job_avg_latency = durations_latency.reduce((a, b) => a + b, 0) / durations_latency.length;
         this.statistics = {
@@ -96,8 +93,8 @@ class PasswordCracker extends Job {
             pwd_avg_latency: job_avg_latency / this.batchSize,
             total_time: durations.reduce((a, b) => a + b, 0)
         };
-        console.log("Statistics:");
-        console.log(this.statistics);
+        //console.log("Statistics:");
+        //console.log(this.statistics);
         return this.statistics;
     }
 
