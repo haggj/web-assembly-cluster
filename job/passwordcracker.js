@@ -4,6 +4,8 @@ const fs = require('fs');
 
 class PasswordCracker extends Job {
     constructor(initParams) {
+        console.log('PARAMS')
+        console.log(initParams)
         super(initParams);
         this.batchSize = initParams.batchSize;
         this.lines = [];
@@ -12,12 +14,14 @@ class PasswordCracker extends Job {
         this.timeout = initParams.timeout;
         this.hash = initParams.hash;
         this.name = initParams.name;
+        this.filePath = initParams.filePath; // 'rockyou_small.txt'
         this.createJobs();
     }
 
     readRockYouFile() {
         try {
-            const data = fs.readFileSync('rockyou_100.txt', 'utf8');
+            console.log('FILE PATH: ' + this.filePath)
+            const data = fs.readFileSync(this.filePath, 'utf8');
             this.lines = data.split('\n');
         } catch (err) {
             console.error(err);

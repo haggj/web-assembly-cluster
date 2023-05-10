@@ -16,6 +16,7 @@ export const MasterDashboard = () => {
         timeout: '',
         hash: '',
         name: '',
+        filePath: ''
     }
 
     const [jobs, setJobs] = useState([]);
@@ -460,6 +461,15 @@ export const MasterDashboard = () => {
                                 placeholder="Timeout"
                                 name="timeout"
                                 value={formData.timeout}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formFilePath">
+                            <Form.Label>Filepath</Form.Label>
+                            <Form.Control
+                                placeholder="filepath"
+                                name="filePath"
+                                value={formData.filePath}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 const PasswordCracker = require('../../job/passwordcracker');
+const fs = require('fs');
 
 @Injectable()
 export class AppService {
@@ -10,19 +11,30 @@ export class AppService {
       batchSize: 10,
       timeout: 5000,
       hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
-      name: 'passwordcracker_10',
+      name: 'passwordcracker_10_100',
+      filePath: 'rockyou_100.txt'
     },
     {
       batchSize: 20,
       timeout: 5000,
       hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
-      name: 'passwordcracker_20',
+      name: 'passwordcracker_20_100',
+      filePath: 'rockyou_100.txt'
+    },
+    {
+      batchSize: 20,
+      timeout: 5000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'passwordcracker_20_1000',
+      filePath: 'rockyou_1000.txt'
     }
   ]
 
   constructor() {
     // Adding PasswordCracker Job
     this.jobInitParams.map(init => this.allJobDefinitions.push(new PasswordCracker(init)))
+    this.allJobDefinitions.map(job => console.log(job.info()))
+    console.log('TEST: ' + this.allJobDefinitions.length)
   }
 
   getHello(): string {
@@ -124,21 +136,25 @@ export class AppService {
   // create a new job with incoming InitParams
   createNewJob(initParam: any) {
     console.log(initParam)
-    const { batchSize, timeout, hash, name } = initParam
+    const { batchSize, timeout, hash, name, filePath } = initParam
     if (batchSize && typeof Number(batchSize) === 'number'
         && timeout && typeof Number(timeout) === 'number'
         && hash && typeof hash === 'string'
         && name && typeof name === 'string'
+        && filePath && typeof filePath === 'string'
     ){
-      const newInitParam = {
-        batchSize: Number(batchSize),
-        timeout: Number(timeout),
-        name: name,
-        hash: hash
+      if (fs.existsSync(filePath)) {
+        const newInitParam = {
+          batchSize: Number(batchSize),
+          timeout: Number(timeout),
+          name: name,
+          hash: hash,
+          filePath: filePath
+        }
+        this.jobInitParams.push(newInitParam)
+        this.allJobDefinitions.push(new PasswordCracker(newInitParam))
+        console.log('success')
       }
-      this.jobInitParams.push(newInitParam)
-      this.allJobDefinitions.push(new PasswordCracker(newInitParam))
-      console.log('success')
     }
   }
 }
