@@ -11,7 +11,7 @@ class Job {
         this.hash = NaN;
         this.start_time = NaN;
         this.end_time = NaN;
-        this.done_counter = 0;
+        this.done_counter = new Set();
     }
 
     setStartTime() {
@@ -61,9 +61,9 @@ class Job {
         this.jobs[job_idx].result = result;
         this.check_term(result);
         this.jobs[job_idx].end = now;
-        this.done_counter += 1;
+        this.done_counter.add(job_idx);
 
-        if (this.done_counter === this.jobs.length) {
+        if (this.done_counter.size === this.jobs.length) {
             this.status = 'done';
             this.end_time = Date.now()
         }
