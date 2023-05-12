@@ -45,17 +45,18 @@ export const Client = () => {
         } else if (eventType === "RESULT") {
             // Webworker finished job
             const latestJobEnd = Date.now();
-            latestJob.duration = latestJobEnd - latestJobStart;
+            let jobDuration = latestJobEnd - latestJobStart;
             latestJob.type = loadedWasm;
+            latestJob.duration = jobDuration
+            latestJob.result = eventData
 
             setJobIsRunning(false);
             finishedJobs.push(latestJob);
             setFinishedJobs(finishedJobs);
 
-            let result = {id: latestJob.id, result: eventData, duration: latestJob.duration};
             console.log("Result of job:")
-            console.log(result)
-            socket.emit('resultwasm', result);
+            console.log(latestJob)
+            socket.emit('resultwasm', latestJob);
         } else if (eventType === "ERROR") {
             console.log("Error during job:")
             console.log(eventData)
