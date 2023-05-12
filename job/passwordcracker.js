@@ -46,9 +46,9 @@ class PasswordCracker extends Job {
     check_term(result) {
         // Ignore incoming job results if solution was found
         if (!this.result) {
-            if (result.result.length > 0) {
+            if (result.length > 0) {
                 this.status = 'done';
-                this.result = result.result;
+                this.result = result;
                 this.end_time = Date.now()
                 return true;
             }
@@ -78,7 +78,7 @@ class PasswordCracker extends Job {
         for (let i = 0; i < jobs_done.length; i++) {
             const job = jobs_done[i];
             durations.push(job.end - job.start);
-            durations_latency.push(job.end - job.start - job.result.duration);
+            durations_latency.push(job.end - job.start - job.duration);
             //console.log(job.result.duration);
         }
         //console.log(durations_latency);

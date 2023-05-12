@@ -57,9 +57,10 @@ class Job {
         var job_idx = this.jobs.findIndex(obj => {
             return obj.id === result.id
           })
+        this.jobs[job_idx] = result;
         this.jobs[job_idx].status = 'done';
-        this.jobs[job_idx].result = result;
-        this.check_term(result);
+        //this.jobs[job_idx].result = result;
+        this.check_term(this.jobs[job_idx].result);
         this.jobs[job_idx].end = now;
         this.done_counter.add(job_idx);
 
