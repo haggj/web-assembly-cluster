@@ -27,6 +27,20 @@ export class AppService {
       hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
       name: 'passwordcracker_20_1000',
       filePath: 'rockyou_1000.txt'
+    },
+    {
+      batchSize: 20,
+      timeout: 15000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'Demo Small',
+      filePath: 'rockyou_1000.txt'
+    },
+    {
+      batchSize: 20,
+      timeout: 15000,
+      hash: 'GRSMbCz1UH+XCNV5Fdt4PCCv0u3By9weAO6vfEZPhPc=',
+      name: 'Demo Large',
+      filePath: 'rockyou_10000.txt'
     }
   ]
 
